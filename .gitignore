@@ -27,7 +27,7 @@ pkg
 #
 # For MacOS:
 #
-#.DS_Store
+.DS_Store
 
 # For TextMate
 #*.tmproj
@@ -39,10 +39,19 @@ pkg
 #.\#*
 
 # For vim:
-#*.swp
+*.swp
 
 # For redcar:
 #.redcar
 
 # For rubinius:
 #*.rbc
+
+# server runtime files
+*.pid
+*.log
+
+features/support/test-pad-background-color.png
+features/support/test-pad.png
+features/support/test-transparent-default.png
+
