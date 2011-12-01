@@ -149,6 +149,36 @@ EOF
 		end
 	end
 
+	describe 'switch handling' do
+		it "should handle long switch names" do
+			ps = CLI.new do
+				switch :location
+				switch :unset
+			end.parse(['--location'])
+			ps.location.should be_true
+			ps.unset.should be_nil
+		end
+
+		it "should handle short switch names" do
+			ps = CLI.new do
+				switch :location, :short => :l
+				switch :unset, :short => :u
+			end.parse(['-l'])
+			ps.location.should be_true
+			ps.unset.should be_nil
+		end
+
+		it "should raise error on unrecognized switch" do
+			ps = CLI.new do
+				option :location
+			end
+			
+			lambda {
+				ps.parse(['--xxx'])
+			}.should raise_error CLI::ParsingError
+		end
+	end
+
 	describe 'option handling' do
 		it "should handle long option names" do
 			ps = CLI.new do
@@ -210,16 +240,6 @@ EOF
 			ps.gold.should be_nil
 		end
 
-		it "should raise error on unrecognized switch" do
-			ps = CLI.new do
-				option :location
-			end
-			
-			lambda {
-				ps.parse(['--xxx', 'singapore'])
-			}.should raise_error CLI::ParsingError
-		end
-
 		it "should raise error on missing option argument" do
 			ps = CLI.new do
 				option :location
@@ -244,19 +264,20 @@ EOF
 		end
 	end
 
-	it "should handle options and then arguments" do
+	it "should handle options, switches and then arguments" do
 		ps = CLI.new do
 			option :location, :short => :l
 			option :group, :default => 'red'
 			option :power_up, :short => :p
 			option :speed, :short => :s, :cast => Integer
 			option :size
+			switch :debug
 
 			argument :log, :cast => Pathname
 			argument :magick, :default => 'word'
 			argument :test
 			argument :code, :cast => Integer, :default => '123'
-		end.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
+		end.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--debug', '--size', 'XXXL', '/tmp', 'hello'])
 
 		ps.group.should == 'red'
 		ps.power_up.should == 'yes'
@@ -267,6 +288,7 @@ EOF
 		ps.magick.should == 'word'
 		ps.test.should == 'hello'
 		ps.code.should == 123
+		ps.debug.should be_true
 	end
 
 	describe "usage and description" do
@@ -277,6 +299,7 @@ EOF
 				option :power_up, :short => :p
 				option :speed, :short => :s, :cast => Integer
 				option :size
+				switch :debug
 
 				argument :log, :cast => Pathname
 				argument :magick, :default => 'word'
@@ -307,6 +330,15 @@ EOF
 			ps = ss.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
 			ps.help.should be_nil
 			ps.location.should == 'singapore'
+		end
+
+		it "should allow describing switches" do
+			ss = CLI.new do
+				switch :debug, :short => :d, :description => "enable debugging"
+				switch :logging
+			end
+
+			ss.usage.should include("enable debugging")
 		end
 
 		it "should allow describing options" do
@@ -363,6 +395,9 @@ EOF
 			u = CLI.new do
 				description 'Log file processor'
 				stdin :log_data, :cast => YAML, :description => "YAML formatted log data"
+				switch :debug, :short => :d, :description => "enable debugging"
+				switch :logging, :short => :l
+				switch :run
 				option :location, :short => :l, :description => "place where server is located"
 				option :group, :default => 'red'
 				option :power_up, :short => :p
@@ -381,10 +416,14 @@ EOF
 			#puts u
 
 			u.should == <<EOS
-Usage: rspec [options] log magick string number code illegal-prime < log-data
+Usage: rspec [switches|options] log magick string number code illegal-prime < log-data
 Log file processor
 Input:
    log-data - YAML formatted log data
+Switches:
+   --debug (-d) - enable debugging
+   --logging (-l)
+   --run
 Options:
    --location (-l) - place where server is located
    --group [red]

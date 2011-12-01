@@ -7,12 +7,25 @@ class CLI
 	end
 
 	class Parsed < OpenStruct
-		def set(argument, value)
+		def value(argument, value)
 			send((argument.name.to_s + '=').to_sym, argument.cast(value)) 
+		end
+
+		def set(argument)
+			send((argument.name.to_s + '=').to_sym, true) 
 		end
 	end
 
 	module Options
+		class Base
+			def initialize(name, options = {})
+				@name = name
+				@options = options
+			end
+
+			attr_reader :name
+		end
+		
 		module Cast
 			def cast(value)
 				begin
@@ -43,14 +56,23 @@ class CLI
 				@options[:description]
 			end
 		end
+
+		module Value
+			def default
+				@options[:default]
+			end
+
+			def has_default?
+				@options.member? :default
+			end
+
+			def optional?
+				has_default?
+			end
+		end
 	end
 
-	class STDINHandling
-		def initialize(name, options = {})
-			@name = name
-			@options = options
-		end
-
+	class STDINHandling < Options::Base
 		include Options::Cast
 		include Options::Description
 
@@ -59,40 +81,18 @@ class CLI
 		end
 	end
 
-	class Argument
-		def initialize(name, options = {})
-			@name = name
-			@options = {
-				:cast => String
-			}.merge(options)
-		end
-
-		attr_reader :name
-
+	class Argument < Options::Base
+		include Options::Value
 		include Options::Cast
 		include Options::Description
 
-		def default
-			@options[:default]
-		end
-
-		def has_default?
-			@options.member? :default
-		end
-
-		def optional?
-			has_default?
-		end
-		
 		def to_s
 			name.to_s.tr('_', '-')
 		end
 	end
 
-	class Option < Argument
-		def optional?
-			has_default? or not @options[:required]
-		end
+	class Switch < Options::Base
+		include Options::Description
 
 		def has_short?
 			@options.member? :short
@@ -115,11 +115,20 @@ class CLI
 		end
 	end
 
+	class Option < Switch
+		include Options::Value
+		include Options::Cast
+
+		def optional?
+			has_default? or not @options[:required]
+		end
+	end
+
 	def initialize(&block)
 		#TODO: optoins should be in own class?
-		@options = []
-		@optoins_long = {}
-		@optoins_short = {}
+		@switches = []
+		@switches_long = {}
+		@switches_short = {}
 		@options_default = []
 		@options_required = []
 		@arguments = []
@@ -139,11 +148,18 @@ class CLI
 		@arguments << Argument.new(name, options)
 	end
 
+	def switch(name, options = {})
+		o = Switch.new(name, options)
+		@switches << o
+		@switches_long[name] = o
+		@switches_short[o.short] = o if o.has_short?
+	end
+
 	def option(name, options = {})
 		o = Option.new(name, options)
-		@options << o
-		@optoins_long[name] = o
-		@optoins_short[o.short] = o if o.has_short?
+		@switches << o
+		@switches_long[name] = o
+		@switches_short[o.short] = o if o.has_short?
 		@options_default << o if o.has_default?
 		@options_required << o unless o.optional?
 	end
@@ -161,25 +177,27 @@ class CLI
 
 		# set defaults
 		@options_default.each do |o|
-			parsed.set(o, o.default)
+			parsed.value(o, o.default)
 		end
 
 		# process switches
 		options_required = @options_required.dup
 		while argv.first =~ /^-/
-			switch = argv.shift
-			option = if switch =~ /^--/
-				@optoins_long[switch.sub(/^--/, '').tr('-', '_').to_sym]
+			arg = argv.shift
+			switch = if arg =~ /^--/
+				@switches_long[arg.sub(/^--/, '').tr('-', '_').to_sym]
 			else
-				@optoins_short[switch.sub(/^-/, '').tr('-', '_').to_sym]
+				@switches_short[arg.sub(/^-/, '').tr('-', '_').to_sym]
 			end
 
-			if option
-				value = argv.shift or raise ParsingError, "missing option argument: #{option}"
-				parsed.set(option, value)
-				options_required.delete(option)
+			raise ParsingError, "unknonw switch: #{arg}" unless switch
+
+			if switch.kind_of? Option
+				value = argv.shift or raise ParsingError, "missing option argument: #{switch}"
+				parsed.value(switch, value)
+				options_required.delete(switch)
 			else
-				raise ParsingError, "unknonw switch: #{switch}"
+				parsed.set(switch)
 			end
 		end
 
@@ -195,7 +213,7 @@ class CLI
 				argv.shift or raise ParsingError, "missing argument: #{argument}"
 			end
 
-			parsed.set(argument, value)
+			parsed.value(argument, value)
 		end
 
 		# process stdin
@@ -218,10 +236,15 @@ class CLI
 	end
 
 	def usage(msg = nil)
+		switches = @switches.select{|s| s.class == Switch}
+		options = @switches.select{|s| s.class == Option}
+
 		out = StringIO.new
 		out.puts msg if msg
 		out.print "Usage: #{File.basename $0}"
-		out.print ' [options]' unless @optoins_long.empty?
+		out.print ' [switches|options]' if not switches.empty? and not options.empty?
+		out.print ' [switches]' if not switches.empty? and options.empty?
+		out.print ' [options]' if switches.empty? and not options.empty?
 		out.print ' ' + @arguments.map{|a| a.to_s}.join(' ') unless @arguments.empty?
 		out.print " < #{@stdin_handling}" if @stdin_handling
 
@@ -233,9 +256,20 @@ class CLI
 			out.puts "   #{@stdin_handling} - #{@stdin_handling.description}"
 		end
 
-		unless @optoins_long.empty?
+		unless switches.empty?
+			out.puts "Switches:"
+			switches.each do |s|
+				out.print '   '
+				out.print s.switch
+				out.print " (#{s.switch_short})" if s.has_short?
+				out.print " - #{s.description}" if s.description?
+				out.puts
+			end
+		end
+
+		unless options.empty?
 			out.puts "Options:"
-			@options.each do |o|
+			options.each do |o|
 				out.print '   '
 				out.print o.switch
 				out.print " (#{o.switch_short})" if o.has_short?
