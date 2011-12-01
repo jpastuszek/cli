@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "cli.gemspec",
     "features/cli.feature",
     "features/step_definitions/cli_steps.rb",
     "features/support/env.rb",
