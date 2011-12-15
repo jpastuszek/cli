@@ -3,6 +3,8 @@ require 'stringio'
 require 'yaml'
 
 require 'cli/dsl'
+require 'cli/switches'
+require 'cli/options'
 
 class CLI
 	class ParsingError < ArgumentError
@@ -20,13 +22,9 @@ class CLI
 	end
 
 	def initialize(&block)
-		#TODO: optoins should be in own class?
-		@switches = []
-		@switches_long = {}
-		@switches_short = {}
-		@options_default = []
-		@options_required = []
 		@arguments = []
+		@switches = Switches.new
+		@options = Options.new
 		instance_eval(&block) if block_given?
 	end
 
@@ -44,19 +42,11 @@ class CLI
 	end
 
 	def switch(name, options = {})
-		o = DSL::Switch.new(name, options)
-		@switches << o
-		@switches_long[name] = o
-		@switches_short[o.short] = o if o.has_short?
+		@switches << DSL::Switch.new(name, options)
 	end
 
 	def option(name, options = {})
-		o = DSL::Option.new(name, options)
-		@switches << o
-		@switches_long[name] = o
-		@switches_short[o.short] = o if o.has_short?
-		@options_default << o if o.has_default?
-		@options_required << o unless o.optional?
+		@options << DSL::Option.new(name, options)
 	end
 
 	def parse(_argv = ARGV, stdin = STDIN, stderr = STDERR)
@@ -71,28 +61,26 @@ class CLI
 		end
 
 		# set defaults
-		@options_default.each do |o|
+		@options.defaults.each do |o|
 			parsed.value(o, o.default)
 		end
 
 		# process switches
-		options_required = @options_required.dup
-		while argv.first =~ /^-/
+		options_required = @options.required.dup
+
+
+		while Switches.is_switch?(argv.first)
 			arg = argv.shift
-			switch = if arg =~ /^--/
-				@switches_long[arg.sub(/^--/, '').tr('-', '_').to_sym]
-			else
-				@switches_short[arg.sub(/^-/, '').tr('-', '_').to_sym]
-			end
 
-			raise ParsingError, "unknonw switch: #{arg}" unless switch
-
-			if switch.kind_of? DSL::Option
-				value = argv.shift or raise ParsingError, "missing option argument: #{switch}"
-				parsed.value(switch, value)
-				options_required.delete(switch)
-			else
+			if switch = @switches.find(arg)
 				parsed.set(switch)
+			elsif option = @options.find(arg)
+				#TODO: raise subclass of ParsingError
+				value = argv.shift or raise ParsingError, "missing option argument: #{switch}"
+				parsed.value(option, value)
+				options_required.delete(option)
+			else
+				raise ParsingError, "unknonw switch: #{arg}" unless switch
 			end
 		end
 
@@ -131,15 +119,12 @@ class CLI
 	end
 
 	def usage(msg = nil)
-		switches = @switches.select{|s| s.class == DSL::Switch}
-		options = @switches.select{|s| s.class == DSL::Option}
-
 		out = StringIO.new
 		out.puts msg if msg
 		out.print "Usage: #{File.basename $0}"
-		out.print ' [switches|options]' if not switches.empty? and not options.empty?
-		out.print ' [switches]' if not switches.empty? and options.empty?
-		out.print ' [options]' if switches.empty? and not options.empty?
+		out.print ' [switches|options]' if not @switches.empty? and not @options.empty?
+		out.print ' [switches]' if not @switches.empty? and @options.empty?
+		out.print ' [options]' if @switches.empty? and not @options.empty?
 		out.print ' ' + @arguments.map{|a| a.to_s}.join(' ') unless @arguments.empty?
 		out.print " < #{@stdin}" if @stdin
 
@@ -151,9 +136,9 @@ class CLI
 			out.puts "   #{@stdin} - #{@stdin.description}"
 		end
 
-		unless switches.empty?
+		unless @switches.empty?
 			out.puts "Switches:"
-			switches.each do |s|
+			@switches.each do |s|
 				out.print '   '
 				out.print s.switch
 				out.print " (#{s.switch_short})" if s.has_short?
@@ -162,9 +147,9 @@ class CLI
 			end
 		end
 
-		unless options.empty?
+		unless @options.empty?
 			out.puts "Options:"
-			options.each do |o|
+			@options.each do |o|
 				out.print '   '
 				out.print o.switch
 				out.print " (#{o.switch_short})" if o.has_short?
