@@ -29,5 +29,13 @@ class CLI::Switches < Array
 	def find_short(arg)
 		@short[arg.sub(/^-/, '').tr('-', '_').to_sym]
 	end
+
+	def has_long?(switch_dsl)
+		@long.member?(switch_dsl.name)
+	end
+
+	def has_short?(switch_dsl)
+		@short.member?(switch_dsl.short) if switch_dsl.has_short?
+	end
 end
 

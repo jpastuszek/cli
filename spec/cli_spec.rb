@@ -334,6 +334,38 @@ EOF
 		ps.debug.should be_true
 	end
 
+	describe "name conflict reporting" do
+		it "raise error when long names configlict" do
+			lambda {
+				ps = CLI.new do
+					option :location
+					option :location
+				end
+			}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'option location specified twice'
+
+			lambda {
+				ps = CLI.new do
+					switch :location
+					switch :location
+				end
+			}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch location specified twice'
+
+			lambda {
+				ps = CLI.new do
+					switch :location
+					option :location
+				end
+			}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch and option location specified twice'
+
+			lambda {
+				ps = CLI.new do
+					option :location
+					switch :location
+				end
+			}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'option and switch location specified twice'
+		end
+	end
+
 	describe "usage and description" do
 		it "parse should set help variable if -h or --help specified in the argument list and not parse the input" do
 			ss = CLI.new do
@@ -421,7 +453,7 @@ EOF
 		it "should suggest that switches or options can be used in usage line" do
 			ss = CLI.new do
 				switch :location, :short => :l
-				option :location, :short => :l
+				option :size, :short => :s
 			end
 
 			ss.usage.first.should == "Usage: rspec [switches|options]\n"

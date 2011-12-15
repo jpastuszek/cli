@@ -19,6 +19,12 @@ class CLI
 				super("#{type} options has to be of type Hash, got #{arg.class.name}")
 			end
 		end
+
+		class LongNameSpecifiedTwiceError < ParserError
+			def initialize(what, name)
+				super("#{what} #{name} specified twice")
+			end
+		end
 	end
 
 	class ParsingError < ArgumentError
@@ -87,13 +93,24 @@ class CLI
 	def switch(name, options = {})
 		raise ParserError::NameArgumetNotSymbolError.new('switch', name) unless name.is_a? Symbol
 		raise ParserError::OptionsArgumentNotHashError.new('switch', options) unless options.is_a? Hash
-		@switches << DSL::Switch.new(name, options)
+		switch_dsl = DSL::Switch.new(name, options)
+
+		raise ParserError::LongNameSpecifiedTwiceError.new('switch', switch_dsl.name) if @switches.has_long?(switch_dsl) 
+		raise ParserError::LongNameSpecifiedTwiceError.new('option and switch', switch_dsl.name) if @options.has_long?(switch_dsl) 
+
+		@switches << switch_dsl
 	end
 
 	def option(name, options = {})
 		raise ParserError::NameArgumetNotSymbolError.new('option', name) unless name.is_a? Symbol
 		raise ParserError::OptionsArgumentNotHashError.new('option', options) unless options.is_a? Hash
-		@options << DSL::Option.new(name, options)
+
+		option_dsl = DSL::Option.new(name, options)
+
+		raise ParserError::LongNameSpecifiedTwiceError.new('option', option_dsl.name) if @options.has_long?(option_dsl) 
+		raise ParserError::LongNameSpecifiedTwiceError.new('switch and option', option_dsl.name) if @switches.has_long?(option_dsl) 
+
+		@options << option_dsl
 	end
 
 	def parse(_argv = ARGV, stdin = STDIN, stderr = STDERR)
