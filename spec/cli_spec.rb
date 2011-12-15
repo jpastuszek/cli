@@ -98,13 +98,13 @@ EOF
 			lambda {
 				ps = CLI.new do
 					argument 'number'
-				end.parse(['123'])
+				end
 			}.should raise_error CLI::ParserError::NameArgumetNotSymbolError, "argument name has to be of type Symbol, got String"
 
 			lambda {
 				ps = CLI.new do
 					argument :number, :test
-				end.parse(['123'])
+				end
 			}.should raise_error CLI::ParserError::OptionsArgumentNotHashError, "argument options has to be of type Hash, got Symbol"
 		end
 
@@ -201,7 +201,7 @@ EOF
 			lambda {
 				ps = CLI.new do
 					switch :number, :test
-				end.parse([])
+				end
 			}.should raise_error CLI::ParserError::OptionsArgumentNotHashError, "switch options has to be of type Hash, got Symbol"
 		end
 
@@ -281,13 +281,13 @@ EOF
 			lambda {
 				ps = CLI.new do
 					option 'number'
-				end.parse([])
+				end
 			}.should raise_error CLI::ParserError::NameArgumetNotSymbolError, "option name has to be of type Symbol, got String"
 
 			lambda {
 				ps = CLI.new do
 					option :number, :test
-				end.parse([])
+				end
 			}.should raise_error CLI::ParserError::OptionsArgumentNotHashError, "option options has to be of type Hash, got Symbol"
 		end
 
