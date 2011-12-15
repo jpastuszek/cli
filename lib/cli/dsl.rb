@@ -2,6 +2,9 @@ class CLI
 	module DSL
 		class Base
 			def initialize(name, options = {})
+				class_name = self.class.name.gsub(/.*:/, '').downcase
+				raise ParserError::NameArgumetNotSymbolError.new(class_name, name) unless name.is_a? Symbol
+				raise ParserError::OptionsArgumentNotHashError.new(class_name, options) unless options.is_a? Hash
 				@name = name
 				@options = options
 			end

@@ -93,14 +93,11 @@ class CLI
 		@description = desc
 	end
 
-	def stdin(name = nil, options = {})
+	def stdin(name = :data, options = {})
 		@stdin = DSL::Input.new(name, options)
 	end
 
 	def argument(name, options = {})
-		raise ParserError::NameArgumetNotSymbolError.new('argument', name) unless name.is_a? Symbol
-		raise ParserError::OptionsArgumentNotHashError.new('argument', options) unless options.is_a? Hash
-
 		argument_dsl = DSL::Argument.new(name, options)
 
 		raise ParserError::ArgumentNameSpecifiedTwice.new(argument_dsl.name) if @arguments.has?(argument_dsl)
@@ -109,8 +106,6 @@ class CLI
 	end
 
 	def switch(name, options = {})
-		raise ParserError::NameArgumetNotSymbolError.new('switch', name) unless name.is_a? Symbol
-		raise ParserError::OptionsArgumentNotHashError.new('switch', options) unless options.is_a? Hash
 		switch_dsl = DSL::Switch.new(name, options)
 
 		raise ParserError::LongNameSpecifiedTwiceError.new('switch', switch_dsl.name) if @switches.has_long?(switch_dsl) 
@@ -123,9 +118,6 @@ class CLI
 	end
 
 	def option(name, options = {})
-		raise ParserError::NameArgumetNotSymbolError.new('option', name) unless name.is_a? Symbol
-		raise ParserError::OptionsArgumentNotHashError.new('option', options) unless options.is_a? Hash
-
 		option_dsl = DSL::Option.new(name, options)
 
 		raise ParserError::LongNameSpecifiedTwiceError.new('option', option_dsl.name) if @options.has_long?(option_dsl) 
