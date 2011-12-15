@@ -7,6 +7,20 @@ require 'cli/switches'
 require 'cli/options'
 
 class CLI
+	module ParserError
+		class NameArgumetNotSymbolError < ArgumentError
+			def initialize(type, arg)
+				super("#{type} name has to be of type Symbol, got #{arg.class.name}")
+			end
+		end
+
+		class OptionsArgumentNotHashError < ArgumentError
+			def initialize(type, arg)
+				super("#{type} options has to be of type Hash, got #{arg.class.name}")
+			end
+		end
+	end
+
 	class ParsingError < ArgumentError
 	end
 
@@ -31,20 +45,25 @@ class CLI
 		@description = desc
 	end
 
-	#TODO: type error handling (name, options)
 	def stdin(name = nil, options = {})
 		@stdin = DSL::Input.new(name, options)
 	end
 
 	def argument(name, options = {})
+		raise ParserError::NameArgumetNotSymbolError.new('argument', name) unless name.is_a? Symbol
+		raise ParserError::OptionsArgumentNotHashError.new('argument', options) unless options.is_a? Hash
 		@arguments << DSL::Argument.new(name, options)
 	end
 
 	def switch(name, options = {})
+		raise ParserError::NameArgumetNotSymbolError.new('switch', name) unless name.is_a? Symbol
+		raise ParserError::OptionsArgumentNotHashError.new('switch', options) unless options.is_a? Hash
 		@switches << DSL::Switch.new(name, options)
 	end
 
 	def option(name, options = {})
+		raise ParserError::NameArgumetNotSymbolError.new('option', name) unless name.is_a? Symbol
+		raise ParserError::OptionsArgumentNotHashError.new('option', options) unless options.is_a? Hash
 		@options << DSL::Option.new(name, options)
 	end
 
@@ -65,7 +84,6 @@ class CLI
 
 		# process switches
 		options_required = @options.required.dup
-
 
 		while Switches.is_switch?(argv.first)
 			arg = argv.shift

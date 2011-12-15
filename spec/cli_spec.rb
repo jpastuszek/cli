@@ -94,6 +94,20 @@ EOF
 			ps.test.should == 'hello'
 		end
 
+		it "should raise error if not symbol and optional hash is passed" do
+			lambda {
+				ps = CLI.new do
+					argument 'number'
+				end.parse(['123'])
+			}.should raise_error CLI::ParserError::NameArgumetNotSymbolError, "argument name has to be of type Symbol, got String"
+
+			lambda {
+				ps = CLI.new do
+					argument :number, :test
+				end.parse(['123'])
+			}.should raise_error CLI::ParserError::OptionsArgumentNotHashError, "argument options has to be of type Hash, got Symbol"
+		end
+
 		it "should raise error if not given" do
 			lambda {
 				ps = CLI.new do
@@ -168,6 +182,20 @@ EOF
 			ps.unset.should be_nil
 		end
 
+		it "should raise error if not symbol and optional hash is passed" do
+			lambda {
+				ps = CLI.new do
+					switch 'number'
+				end.parse([])
+			}.should raise_error CLI::ParserError::NameArgumetNotSymbolError, "switch name has to be of type Symbol, got String"
+
+			lambda {
+				ps = CLI.new do
+					switch :number, :test
+				end.parse([])
+			}.should raise_error CLI::ParserError::OptionsArgumentNotHashError, "switch options has to be of type Hash, got Symbol"
+		end
+
 		it "should raise error on unrecognized switch" do
 			ps = CLI.new do
 				option :location
@@ -238,6 +266,20 @@ EOF
 			ps.not_given.should be_nil
 			ps.size.should == 'XXXL'
 			ps.gold.should be_nil
+		end
+
+		it "should raise error if not symbol and optional hash is passed" do
+			lambda {
+				ps = CLI.new do
+					option 'number'
+				end.parse([])
+			}.should raise_error CLI::ParserError::NameArgumetNotSymbolError, "option name has to be of type Symbol, got String"
+
+			lambda {
+				ps = CLI.new do
+					option :number, :test
+				end.parse([])
+			}.should raise_error CLI::ParserError::OptionsArgumentNotHashError, "option options has to be of type Hash, got Symbol"
 		end
 
 		it "should raise error on missing option argument" do
