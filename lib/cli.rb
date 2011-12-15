@@ -2,125 +2,20 @@ require 'ostruct'
 require 'stringio'
 require 'yaml'
 
+require 'cli/dsl'
+
 class CLI
 	class ParsingError < ArgumentError
 	end
 
 	class Parsed < OpenStruct
 		def value(argument, value)
+			# TODO: no casting here
 			send((argument.name.to_s + '=').to_sym, argument.cast(value)) 
 		end
 
 		def set(argument)
 			send((argument.name.to_s + '=').to_sym, true) 
-		end
-	end
-
-	module Options
-		class Base
-			def initialize(name, options = {})
-				@name = name
-				@options = options
-			end
-
-			attr_reader :name
-		end
-		
-		module Cast
-			def cast(value)
-				begin
-					cast_class = @options[:cast]
-					if cast_class == nil
-						value
-					elsif cast_class == Integer
-						value.to_i
-					elsif cast_class == Float
-						value.to_f
-					elsif cast_class == YAML
-						YAML.load(value)
-					else
-						cast_class.new(value)
-					end
-				rescue => e
-					raise ParsingError, "failed to cast: #{@name} to type: #{@options[:cast].name}: #{e}"
-				end
-			end
-		end
-
-		module Description
-			def description?
-				@options.member? :description
-			end
-
-			def description
-				@options[:description]
-			end
-		end
-
-		module Value
-			def default
-				@options[:default]
-			end
-
-			def has_default?
-				@options.member? :default
-			end
-
-			def optional?
-				has_default?
-			end
-		end
-	end
-
-	class STDINHandling < Options::Base
-		include Options::Cast
-		include Options::Description
-
-		def to_s
-			(@name or @options[:cast] or 'data').to_s.tr('_', '-')
-		end
-	end
-
-	class Argument < Options::Base
-		include Options::Value
-		include Options::Cast
-		include Options::Description
-
-		def to_s
-			name.to_s.tr('_', '-')
-		end
-	end
-
-	class Switch < Options::Base
-		include Options::Description
-
-		def has_short?
-			@options.member? :short
-		end
-
-		def short
-			@options[:short]
-		end
-
-		def switch
-			'--' + name.to_s.tr('_', '-')
-		end
-
-		def switch_short
-			'-' + short.to_s
-		end
-
-		def to_s
-			switch
-		end
-	end
-
-	class Option < Switch
-		include Options::Value
-		include Options::Cast
-
-		def optional?
-			has_default? or not @options[:required]
 		end
 	end
 
@@ -139,24 +34,24 @@ class CLI
 		@description = desc
 	end
 
+	#TODO: type error handling (name, options)
 	def stdin(name = nil, options = {})
-		@stdin_handling = STDINHandling.new(name, options)
+		@stdin = DSL::Input.new(name, options)
 	end
 
 	def argument(name, options = {})
-		raise ArgumentError, "expected argument options of type Hash, got: #{options.class.name}" unless options.is_a? Hash
-		@arguments << Argument.new(name, options)
+		@arguments << DSL::Argument.new(name, options)
 	end
 
 	def switch(name, options = {})
-		o = Switch.new(name, options)
+		o = DSL::Switch.new(name, options)
 		@switches << o
 		@switches_long[name] = o
 		@switches_short[o.short] = o if o.has_short?
 	end
 
 	def option(name, options = {})
-		o = Option.new(name, options)
+		o = DSL::Option.new(name, options)
 		@switches << o
 		@switches_long[name] = o
 		@switches_short[o.short] = o if o.has_short?
@@ -192,7 +87,7 @@ class CLI
 
 			raise ParsingError, "unknonw switch: #{arg}" unless switch
 
-			if switch.kind_of? Option
+			if switch.kind_of? DSL::Option
 				value = argv.shift or raise ParsingError, "missing option argument: #{switch}"
 				parsed.value(switch, value)
 				options_required.delete(switch)
@@ -217,7 +112,7 @@ class CLI
 		end
 
 		# process stdin
-		parsed.stdin = @stdin_handling.cast(stdin) if @stdin_handling
+		parsed.stdin = @stdin.cast(stdin) if @stdin
 
 		parsed
 	end
@@ -236,8 +131,8 @@ class CLI
 	end
 
 	def usage(msg = nil)
-		switches = @switches.select{|s| s.class == Switch}
-		options = @switches.select{|s| s.class == Option}
+		switches = @switches.select{|s| s.class == DSL::Switch}
+		options = @switches.select{|s| s.class == DSL::Option}
 
 		out = StringIO.new
 		out.puts msg if msg
@@ -246,14 +141,14 @@ class CLI
 		out.print ' [switches]' if not switches.empty? and options.empty?
 		out.print ' [options]' if switches.empty? and not options.empty?
 		out.print ' ' + @arguments.map{|a| a.to_s}.join(' ') unless @arguments.empty?
-		out.print " < #{@stdin_handling}" if @stdin_handling
+		out.print " < #{@stdin}" if @stdin
 
 		out.puts
 		out.puts @description if @description
 
-		if @stdin_handling and @stdin_handling.description?
+		if @stdin and @stdin.description?
 			out.puts "Input:"
-			out.puts "   #{@stdin_handling} - #{@stdin_handling.description}"
+			out.puts "   #{@stdin} - #{@stdin.description}"
 		end
 
 		unless switches.empty?
