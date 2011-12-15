@@ -10,14 +10,13 @@ class CLI
 	class ParsingError < ArgumentError
 	end
 
-	class Parsed < OpenStruct
+	class Values < OpenStruct
 		def value(argument, value)
-			# TODO: no casting here
-			send((argument.name.to_s + '=').to_sym, argument.cast(value)) 
+			send((argument.name.to_s + '=').to_sym, value) 
 		end
 
 		def set(argument)
-			send((argument.name.to_s + '=').to_sym, true) 
+			value(argument, true)
 		end
 	end
 
@@ -50,19 +49,18 @@ class CLI
 	end
 
 	def parse(_argv = ARGV, stdin = STDIN, stderr = STDERR)
-		parsed = Parsed.new
-
+		values = Values.new
 		argv = _argv.dup
 
 		# check help
 		if argv.include? '-h' or argv.include? '--help' 
-			parsed.help = usage
-			return parsed
+			values.help = usage
+			return values
 		end
 
 		# set defaults
 		@options.defaults.each do |o|
-			parsed.value(o, o.default)
+			values.value(o, o.cast(o.default))
 		end
 
 		# process switches
@@ -73,11 +71,11 @@ class CLI
 			arg = argv.shift
 
 			if switch = @switches.find(arg)
-				parsed.set(switch)
+				values.set(switch)
 			elsif option = @options.find(arg)
-				#TODO: raise subclass of ParsingError
-				value = argv.shift or raise ParsingError, "missing option argument: #{switch}"
-				parsed.value(option, value)
+				#TODO: raise subclass of ParsingError, test
+				value = argv.shift or raise ParsingError, "missing option argument: #{option}"
+				values.value(option, option.cast(value))
 				options_required.delete(option)
 			else
 				raise ParsingError, "unknonw switch: #{arg}" unless switch
@@ -96,13 +94,13 @@ class CLI
 				argv.shift or raise ParsingError, "missing argument: #{argument}"
 			end
 
-			parsed.value(argument, value)
+			values.value(argument, argument.cast(value))
 		end
 
 		# process stdin
-		parsed.stdin = @stdin.cast(stdin) if @stdin
+		values.stdin = @stdin.cast(stdin) if @stdin
 
-		parsed
+		values
 	end
 
 	def parse!(argv = ARGV, stdin = STDIN, stderr = STDERR, stdout = STDOUT)
