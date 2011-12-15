@@ -359,6 +359,31 @@ EOF
 			ss.usage.should include("log file to process")
 		end
 
+		it "should suggest that switches can be used in usage line" do
+			ss = CLI.new do
+				switch :location, :short => :l
+			end
+
+			ss.usage.first.should == "Usage: rspec [switches]\n"
+		end
+
+		it "should suggest that options can be used in usage line" do
+			ss = CLI.new do
+				option :location, :short => :l
+			end
+
+			ss.usage.first.should == "Usage: rspec [options]\n"
+		end
+
+		it "should suggest that switches or options can be used in usage line" do
+			ss = CLI.new do
+				switch :location, :short => :l
+				option :location, :short => :l
+			end
+
+			ss.usage.first.should == "Usage: rspec [switches|options]\n"
+		end
+
 		it "should allow describing whole script" do
 			ss = CLI.new do
 				description 'Log file processor'
