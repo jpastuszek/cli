@@ -205,6 +205,20 @@ EOF
 			}.should raise_error CLI::ParserError::OptionsArgumentNotHashError, "switch options has to be of type Hash, got Symbol"
 		end
 
+		it "shoud raise error is short name is invalid" do
+			lambda {
+				ps = CLI.new do
+					switch :location, :short => "l"
+				end
+			}.should raise_error CLI::ParserError::ShortNameNotSymbolError, 'short name has to be of type Symbol, got String'
+
+			lambda {
+				ps = CLI.new do
+					switch :location, :short => :abc
+				end
+			}.should raise_error CLI::ParserError::ShortNameIsInvalidError, 'short name has to be one letter symbol, got abc'
+		end
+
 		it "should raise error on unrecognized switch" do
 			ps = CLI.new do
 				option :location

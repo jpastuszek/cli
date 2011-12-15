@@ -38,6 +38,18 @@ class CLI
 				super("short #{what} #{name} specified twice")
 			end
 		end
+
+		class ShortNameNotSymbolError < ParserError
+			def initialize(short)
+				super("short name has to be of type Symbol, got #{short.class.name}")
+			end
+		end
+
+		class ShortNameIsInvalidError < ParserError
+			def initialize(short)
+				super("short name has to be one letter symbol, got #{short}")
+			end
+		end
 	end
 
 	class ParsingError < ArgumentError
@@ -112,7 +124,6 @@ class CLI
 		raise ParserError::LongNameSpecifiedTwiceError.new('option and switch', switch_dsl.name) if @options.has_long?(switch_dsl) 
 		raise ParserError::ShortNameSpecifiedTwiceError.new('switch', switch_dsl.short) if @switches.has_short?(switch_dsl) 
 		raise ParserError::ShortNameSpecifiedTwiceError.new('option and switch', switch_dsl.short) if @options.has_short?(switch_dsl) 
-
 
 		@switches << switch_dsl
 	end

@@ -77,6 +77,14 @@ class CLI
 		end
 
 		class Switch < DSL::Base
+			def initialize(name, options = {})
+				super(name, options)
+				if short = options[:short]
+					raise ParserError::ShortNameNotSymbolError.new(short) if not short.is_a? Symbol
+					raise ParserError::ShortNameIsInvalidError.new(short) if short.to_s.length > 1
+				end
+			end
+
 			include DSL::Description
 
 			def has_short?
