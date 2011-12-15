@@ -25,7 +25,7 @@ class CLI
 						cast_class.new(value)
 					end
 				rescue => e
-					raise ParsingError, "failed to cast: #{@name} to type: #{@options[:cast].name}: #{e}"
+					raise ParsingError::CastError.new(@name, @options[:cast].name, e)
 				end
 			end
 		end

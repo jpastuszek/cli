@@ -4,16 +4,16 @@ class CLI::Options < CLI::Switches
 	def initialize
 		super
 		@defaults = []
-		@required = []
+		@mandatory = []
 	end
 
 	def <<(option_dsl)
 		super option_dsl
 		@defaults << option_dsl if option_dsl.has_default?
-		@required << option_dsl unless option_dsl.optional?
+		@mandatory << option_dsl unless option_dsl.optional?
 	end
 
 	attr_reader :defaults
-	attr_reader :required
+	attr_reader :mandatory
 end
 

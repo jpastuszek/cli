@@ -113,7 +113,7 @@ EOF
 				ps = CLI.new do
 					argument :log
 				end.parse([])
-			}.should raise_error CLI::ParsingError
+			}.should raise_error CLI::ParsingError::MandatoryArgumentNotSpecifiedError, 'mandatory argument log not given'
 		end
 
 		it "should raise error if casting fail" do
@@ -122,7 +122,7 @@ EOF
 				ps = CLI.new do
 					argument :log, :cast => IP
 				end.parse(['abc'])
-			}.should raise_error CLI::ParsingError, 'failed to cast: log to type: IP: invalid address'
+			}.should raise_error CLI::ParsingError::CastError, 'failed to cast: log to type: IP: invalid address'
 		end
 
 		describe "with defaults" do
@@ -203,7 +203,7 @@ EOF
 			
 			lambda {
 				ps.parse(['--xxx'])
-			}.should raise_error CLI::ParsingError
+			}.should raise_error CLI::ParsingError::UnknownSwitchError, 'unknown switch --xxx'
 		end
 	end
 
@@ -289,12 +289,13 @@ EOF
 			
 			lambda {
 				ps.parse(['--location'])
-			}.should raise_error CLI::ParsingError
+			}.should raise_error CLI::ParsingError::MissingOptionValueError, 'missing value for option --location'
 		end
 
-		it "should raise error on missing required option" do
+		it "should raise error on missing mandatory option" do
 			ps = CLI.new do
 				option :location
+				option :weight, :required => true
 				option :size, :required => true
 				option :group, :default => 'red'
 				option :speed, :short => :s, :cast => Integer
@@ -302,7 +303,7 @@ EOF
 			
 			lambda {
 				ps.parse(['--location', 'singapore'])
-			}.should raise_error CLI::ParsingError, "following options are required but were not specified: --size"
+			}.should raise_error CLI::ParsingError::MandatoryOptionsNotSpecifiedError, "mandatory options not specified: --size, --weight"
 		end
 	end
 

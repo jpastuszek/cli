@@ -7,14 +7,14 @@ require 'cli/switches'
 require 'cli/options'
 
 class CLI
-	module ParserError
-		class NameArgumetNotSymbolError < ArgumentError
+	class ParserError < ArgumentError
+		class NameArgumetNotSymbolError < ParserError
 			def initialize(type, arg)
 				super("#{type} name has to be of type Symbol, got #{arg.class.name}")
 			end
 		end
 
-		class OptionsArgumentNotHashError < ArgumentError
+		class OptionsArgumentNotHashError < ParserError
 			def initialize(type, arg)
 				super("#{type} options has to be of type Hash, got #{arg.class.name}")
 			end
@@ -22,6 +22,35 @@ class CLI
 	end
 
 	class ParsingError < ArgumentError
+		class MissingOptionValueError < ParsingError
+			def initialize(option)
+				super("missing value for option #{option.switch}")
+			end
+		end
+
+		class UnknownSwitchError < ParsingError
+			def initialize(arg)
+				super("unknown switch #{arg}")
+			end
+		end
+
+		class MandatoryOptionsNotSpecifiedError < ParsingError
+			def initialize(options)
+				super("mandatory options not specified: #{options.map{|o| o.switch}.sort.join(', ')}")
+			end
+		end
+
+		class MandatoryArgumentNotSpecifiedError < ParsingError
+			def initialize(arg)
+				super("mandatory argument #{arg} not given")
+			end
+		end
+
+		class CastError < ParsingError
+			def initialize(arg, cast_name, error)
+				super("failed to cast: #{arg} to type: #{cast_name}: #{error}")
+			end
+		end
 	end
 
 	class Values < OpenStruct
@@ -83,7 +112,7 @@ class CLI
 		end
 
 		# process switches
-		options_required = @options.required.dup
+		mandatory_options = @options.mandatory.dup
 
 		while Switches.is_switch?(argv.first)
 			arg = argv.shift
@@ -91,17 +120,16 @@ class CLI
 			if switch = @switches.find(arg)
 				values.set(switch)
 			elsif option = @options.find(arg)
-				#TODO: raise subclass of ParsingError, test
-				value = argv.shift or raise ParsingError, "missing option argument: #{option}"
+				value = argv.shift or raise ParsingError::MissingOptionValueError.new(option)
 				values.value(option, option.cast(value))
-				options_required.delete(option)
+				mandatory_options.delete(option)
 			else
-				raise ParsingError, "unknonw switch: #{arg}" unless switch
+				raise ParsingError::UnknownSwitchError.new(arg) unless switch
 			end
 		end
 
-		# check required
-		raise ParsingError, "following options are required but were not specified: #{options_required.map{|o| o.switch}.join(', ')}" unless options_required.empty?
+		# check mandatory options
+		raise ParsingError::MandatoryOptionsNotSpecifiedError.new(mandatory_options) unless mandatory_options.empty?
 
 		# process arguments
 		arguments = @arguments.dup
@@ -109,7 +137,7 @@ class CLI
 			value = if argv.length < arguments.length + 1 and argument.optional?
 				argument.default # not enough arguments, try to skip optional if possible
 			else
-				argv.shift or raise ParsingError, "missing argument: #{argument}"
+				argv.shift or raise ParsingError::MandatoryArgumentNotSpecifiedError.new(argument)
 			end
 
 			values.value(argument, argument.cast(value))
