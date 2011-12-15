@@ -3,6 +3,7 @@ require 'stringio'
 require 'yaml'
 
 require 'cli/dsl'
+require 'cli/arguments'
 require 'cli/switches'
 require 'cli/options'
 
@@ -17,6 +18,12 @@ class CLI
 		class OptionsArgumentNotHashError < ParserError
 			def initialize(type, arg)
 				super("#{type} options has to be of type Hash, got #{arg.class.name}")
+			end
+		end
+
+		class ArgumentNameSpecifiedTwice < ParserError
+			def initialize(arg)
+				super("argument #{arg} specified twice")
 			end
 		end
 
@@ -76,7 +83,7 @@ class CLI
 	end
 
 	def initialize(&block)
-		@arguments = []
+		@arguments = Arguments.new
 		@switches = Switches.new
 		@options = Options.new
 		instance_eval(&block) if block_given?
@@ -93,7 +100,12 @@ class CLI
 	def argument(name, options = {})
 		raise ParserError::NameArgumetNotSymbolError.new('argument', name) unless name.is_a? Symbol
 		raise ParserError::OptionsArgumentNotHashError.new('argument', options) unless options.is_a? Hash
-		@arguments << DSL::Argument.new(name, options)
+
+		argument_dsl = DSL::Argument.new(name, options)
+
+		raise ParserError::ArgumentNameSpecifiedTwice.new(argument_dsl.name) if @arguments.has?(argument_dsl)
+
+		@arguments << argument_dsl
 	end
 
 	def switch(name, options = {})

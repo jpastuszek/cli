@@ -108,6 +108,15 @@ EOF
 			}.should raise_error CLI::ParserError::OptionsArgumentNotHashError, "argument options has to be of type Hash, got Symbol"
 		end
 
+		it "should raise error if artument name is specified twice" do
+			lambda {
+				ps = CLI.new do
+					argument :number
+					argument :number
+				end
+			}.should raise_error CLI::ParserError::ArgumentNameSpecifiedTwice, 'argument number specified twice'
+		end
+
 		it "should raise error if not given" do
 			lambda {
 				ps = CLI.new do
