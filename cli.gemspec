@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "cli"
-  s.version = "0.0.3"
+  s.version = "0.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2011-12-01"
+  s.date = "2011-12-15"
   s.description = "Provides DSL for command-line options, switches and arguments parser and stdin handling with generated usage printer"
   s.email = "jpastuszek@gmail.com"
   s.extra_rdoc_files = [
@@ -30,6 +30,10 @@ Gem::Specification.new do |s|
     "features/step_definitions/cli_steps.rb",
     "features/support/env.rb",
     "lib/cli.rb",
+    "lib/cli/arguments.rb",
+    "lib/cli/dsl.rb",
+    "lib/cli/options.rb",
+    "lib/cli/switches.rb",
     "spec/cli_spec.rb",
     "spec/spec_helper.rb"
   ]
