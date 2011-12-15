@@ -25,6 +25,12 @@ class CLI
 				super("#{what} #{name} specified twice")
 			end
 		end
+
+		class ShortNameSpecifiedTwiceError < ParserError
+			def initialize(what, name)
+				super("short #{what} #{name} specified twice")
+			end
+		end
 	end
 
 	class ParsingError < ArgumentError
@@ -97,6 +103,9 @@ class CLI
 
 		raise ParserError::LongNameSpecifiedTwiceError.new('switch', switch_dsl.name) if @switches.has_long?(switch_dsl) 
 		raise ParserError::LongNameSpecifiedTwiceError.new('option and switch', switch_dsl.name) if @options.has_long?(switch_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('switch', switch_dsl.short) if @switches.has_short?(switch_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('option and switch', switch_dsl.short) if @options.has_short?(switch_dsl) 
+
 
 		@switches << switch_dsl
 	end
@@ -109,6 +118,8 @@ class CLI
 
 		raise ParserError::LongNameSpecifiedTwiceError.new('option', option_dsl.name) if @options.has_long?(option_dsl) 
 		raise ParserError::LongNameSpecifiedTwiceError.new('switch and option', option_dsl.name) if @switches.has_long?(option_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('option', option_dsl.short) if @options.has_short?(option_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('switch and option', option_dsl.short) if @switches.has_short?(option_dsl) 
 
 		@options << option_dsl
 	end
