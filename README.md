@@ -130,7 +130,7 @@ With this example usage:
       :failures: 0
     EOF
 
-The `option` variable will contain:
+The `options` variable will contain:
 
     #<CLI::Values location="Singapore", stdin={:parser=>{:failures=>0, :successes=>41}}, jekyll_dir=#<Pathname:/var/lib/vhs/jekyll>, csv_dir=#<Pathname:csv>>
 
