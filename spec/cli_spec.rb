@@ -3,7 +3,8 @@ require 'cli'
 
 def stdin_write(data)
 		r, w = IO.pipe
-		old_stdin = STDIN.reopen r
+		old_stdin = STDIN.clone
+		STDIN.reopen r
 		Thread.new do
 		 	w.write data
 			w.close
@@ -13,6 +14,24 @@ def stdin_write(data)
 		ensure
 			STDIN.reopen old_stdin
 		end
+end
+
+def stdout_read
+		r, w = IO.pipe
+		old_stdout = STDOUT.clone
+		STDOUT.reopen(w)
+		data = ''
+		t = Thread.new do
+			data << r.read
+		end
+		begin
+			yield
+		ensure
+			w.close
+			STDOUT.reopen(old_stdout)
+		end
+		t.join
+		data
 end
 
 describe CLI do
@@ -500,6 +519,22 @@ EOF
 				ps.location.should == 'singapore'
 			end
 
+			it "parse! should cause program to exit and display help message on --help or -h switch" do
+				stdout_read do
+					lambda {
+						ps = CLI.new do
+						end.parse!(['--help'])
+					}.should raise_error SystemExit
+				end.should include('Usage:')
+
+				stdout_read do
+					lambda {
+						ps = CLI.new do
+						end.parse!(['-h'])
+					}.should raise_error SystemExit
+				end.should include('Usage:')
+			end
+
 			it "should reserve --help and -h switches" do
 				lambda {
 					ps = CLI.new do
@@ -529,13 +564,32 @@ EOF
 					ps.version.should == 'rspec version "1.0.2"'
 			end
 
-			it "should display version switch in the help message as the last entry" do
+			it "parse! should cause program to exit displyaing version on --version switch" do
+				stdout_read do
+					lambda {
+						ps = CLI.new do
+							version "1.2.3"
+						end.parse!(['--version'])
+					}.should raise_error SystemExit
+				end.should == 'rspec version "1.2.3"'
+			end
+
+			it "should display version switch in the help message as the last entry when version is specified" do
+					CLI.new do
+					end.usage.should_not include("--version")
+
 					CLI.new do
 						version '1.0.2'
 					end.usage.should include("--help (-h) - display this help message\n   --version - display version string")
 			end
 
 			it "should reserve --version switch" do
+				lambda {
+					ps = CLI.new do
+						switch :version
+					end
+				}.should_not raise_error
+
 				lambda {
 					ps = CLI.new do
 						version '1.0.2'
@@ -667,6 +721,7 @@ EOF
 		it "should provide formated usage with optional message" do
 			u = CLI.new do
 				description 'Log file processor'
+				version '1.0'
 				stdin :log_data, :cast => YAML, :description => "YAML formatted log data"
 				switch :debug, :short => :d, :description => "enable debugging"
 				switch :logging, :short => :l
@@ -698,6 +753,7 @@ Switches:
    --logging (-l)
    --run
    --help (-h) - display this help message
+   --version - display version string
 Options:
    --location (-r) - place where server is located
    --group [red]

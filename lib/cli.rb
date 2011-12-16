@@ -216,6 +216,10 @@ class CLI
 				stdout.write pp.help
 				exit 0
 			end
+			if pp.version
+				stdout.write pp.version
+				exit 0
+			end
 			pp
 		rescue ParsingError => pe
 			usage!(pe, stderr)
