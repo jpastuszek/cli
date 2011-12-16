@@ -2,7 +2,7 @@
 
 Command Line Interface gem allows you to quickly specify command argument parser that will automatically handle usage rendering, casting, default values and other stuff for you.
 
-## CLI supports specifying:
+CLI supports specifying:
 
 * switches - (`--name` or `-n`) binary operators, by default set to nil and when specified set to true
 * options - (`--name John` or `-n John`) switches that take value; default value can be given, otherwise default to nil
@@ -19,7 +19,7 @@ See examples and specs for more info.
 
 ## Usage
 
-### Sinatra server example:
+### Sinatra server example
 
 ```ruby
 require 'cli'
@@ -65,7 +65,7 @@ To see help message use `--help` or `-h` anywhere on the command line:
 
     examples/sinatra --help
 
-Example help output:
+Example help message:
 
     Usage: sinatra [switches|options]
     Example CLI usage for Sinatra server application
@@ -91,6 +91,48 @@ To see version string use `--version`
 Example version output:
 
     sinatra version "0.0.4"
+
+### Log processor example
+
+```ruby
+require 'cli'
+
+options = CLI.new do
+	description 'Generate blog posts in given Jekyll directory from input statistics'
+	stdin :log_data, :cast => YAML, :description => 'statistic data in YAML format'
+	option :location, :short => :l, :description => 'location name (ex. Dublin, Singapore, Califorina)'
+	option :csv_dir, :short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be storred (relative to jekyll-dir)'
+	argument :jekyll_dir, :cast => Pathname, :default => '/var/lib/vhs/jekyll', :description => 'directory where site source is located'
+end.parse!
+
+# do your stuff
+```
+
+Example help message:
+
+    Usage: processor [switches|options] [--] jekyll-dir < log-data
+    Generate blog posts in given Jekyll directory from input statistics
+    Input:
+       log-data - statistic data in YAML format
+    Switches:
+       --help (-h) - display this help message
+    Options:
+       --location (-l) - location name (ex. Dublin, Singapore, Califorina)
+       --csv-dir (-c) [csv] - directory name where CSV file will be storred (relative to jekyll-dir)
+    Arguments:
+       jekyll-dir - directory where site source is located
+
+With this example usage:
+
+    examples/processor --location Singapore <<EOF
+    > :parser: 
+    >   :successes: 41
+    >   :failures: 0
+    > EOF
+
+The `option` variable will contain:
+
+    #<CLI::Values location="Singapore", stdin={:parser=>{:failures=>0, :successes=>41}}, jekyll_dir=#<Pathname:/var/lib/vhs/jekyll>, csv_dir=#<Pathname:csv>>
 
 ## Contributing to CLI
  
