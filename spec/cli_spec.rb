@@ -117,7 +117,7 @@ EOF
 			}.should raise_error CLI::ParserError::ArgumentNameSpecifiedTwice, 'argument number specified twice'
 		end
 
-		it "should raise error if not given" do
+		it "should be required by default and raise error if not given" do
 			lambda {
 				ps = CLI.new do
 					argument :log
@@ -135,7 +135,7 @@ EOF
 		end
 
 		describe "with defaults" do
-			it "should use default first argument" do
+			it "when not enought arguments given it should fill required arguments only with defaults" do
 				ps = CLI.new do
 					argument :log, :cast => Pathname, :default => '/tmp'
 					argument :test
@@ -144,9 +144,7 @@ EOF
 				ps.log.to_s.should == '/tmp'
 				ps.test.should be_a String
 				ps.test.should == 'hello'
-			end
 
-			it "should use default second argument" do
 				ps = CLI.new do
 					argument :log, :cast => Pathname
 					argument :test, :default => 'hello'
@@ -155,9 +153,7 @@ EOF
 				ps.log.to_s.should == '/tmp'
 				ps.test.should be_a String
 				ps.test.should == 'hello'
-			end
 
-			it "should use default second argument" do
 				ps = CLI.new do
 					argument :log, :cast => Pathname
 					argument :magick, :default => 'word'
@@ -168,6 +164,19 @@ EOF
 				ps.magick.should == 'word'
 				ps.test.should == 'hello'
 				ps.code.should == 123
+			end
+
+			it "should fill defaults form the beginning if more than required arguments are given" do
+				ps = CLI.new do
+					argument :log, :cast => Pathname
+					argument :magick, :default => 'word'
+					argument :test
+					argument :code, :cast => Integer, :default => '123'
+				end.parse(['/tmp', 'hello', '42'])
+				ps.log.to_s.should == '/tmp'
+				ps.magick.should == 'word'
+				ps.test.should == 'hello'
+				ps.code.should == 42
 			end
 		end
 	end
@@ -336,8 +345,25 @@ EOF
 			end
 			
 			lambda {
-				ps.parse(['--location', 'singapore'])
+				ps.parse([])
 			}.should raise_error CLI::ParsingError::MandatoryOptionsNotSpecifiedError, "mandatory options not specified: --size, --weight"
+		end
+
+		it "by default option value should be nil" do
+			ps = CLI.new do
+				option :location
+				option :speed, :short => :s, :cast => Integer
+				option :weight, :required => true
+				option :group, :default => 'red'
+			end
+			
+			o = ps.parse(['--weight', '123'])
+
+			o.location.should be_nil
+			o.speed.should be_nil
+
+			o.weight.should == '123'
+			o.group.should == 'red'
 		end
 	end
 
