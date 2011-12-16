@@ -34,6 +34,24 @@ def stdout_read
 		data
 end
 
+def stderr_read
+		r, w = IO.pipe
+		old_stdout = STDERR.clone
+		STDERR.reopen(w)
+		data = ''
+		t = Thread.new do
+			data << r.read
+		end
+		begin
+			yield
+		ensure
+			w.close
+			STDERR.reopen(old_stdout)
+		end
+		t.join
+		data
+end
+
 describe CLI do
 	describe 'STDIN handling' do
 		before :all do
@@ -741,8 +759,6 @@ EOF
 				argument :illegal_prime, :cast => Integer, :description => "prime number that represents information that it is forbidden to possess or distribute"
 			end.usage
 
-			#puts u
-
 			u.should == <<EOS
 Usage: rspec [switches|options] log magick string number code illegal-prime < log-data
 Log file processor
@@ -766,6 +782,32 @@ Arguments:
    code - secret code
    illegal-prime - prime number that represents information that it is forbidden to possess or distribute
 EOS
+		end
+	end
+
+	describe "parse!" do
+		it "should return value structure with all the values on successful parsing" do
+			ps = CLI.new do
+				option :location, :short => :l
+				switch :debug
+				argument :code
+			end.parse!(['-l', 'singapore', '--debug', 'hello'])
+
+			ps.location.should == 'singapore'
+			ps.debug.should be_true
+			ps.code.should == 'hello'
+		end
+
+		it "should exit displaying usage and error message on standard error on usage error" do
+				out = stderr_read do
+					lambda {
+						ps = CLI.new do
+							option :weight, :required => true
+						end.parse!([])
+					}.should raise_error SystemExit
+				end
+				out.should include('Error: mandatory options not specified: --weight')
+				out.should include('Usage:')
 		end
 	end
 end
