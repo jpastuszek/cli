@@ -85,7 +85,7 @@ describe CLI do
 					ps = CLI.new do
 						version '1.0.2'
 					end.parse(['--version'])
-					ps.version.should == 'rspec version "1.0.2"'
+					ps.version.should == "rspec version \"1.0.2\"\n"
 			end
 
 			it "parse! should cause program to exit displyaing version on --version switch" do
@@ -95,7 +95,7 @@ describe CLI do
 							version "1.2.3"
 						end.parse!(['--version'])
 					}.should raise_error SystemExit
-				end.should == 'rspec version "1.2.3"'
+				end.should == "rspec version \"1.2.3\"\n"
 			end
 
 			it "should display version switch in the help message as the last entry when version is specified" do

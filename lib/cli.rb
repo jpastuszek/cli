@@ -161,7 +161,7 @@ class CLI
 			end
 
 			if @version and arg == '--version' 
-				values.version = "#{name} version \"#{@version}\""
+				values.version = "#{name} version \"#{@version}\"\n"
 				return values
 			end
 		end
