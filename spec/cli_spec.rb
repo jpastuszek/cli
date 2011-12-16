@@ -521,6 +521,37 @@ EOF
 			end
 		end
 
+		describe "version" do
+			it "should allow specifing version number that will be accessibel via --version switch" do
+					ps = CLI.new do
+						version '1.0.2'
+					end.parse(['--version'])
+					ps.version.should == 'rspec version "1.0.2"'
+			end
+
+			it "should display version switch in the help message as the last entry" do
+					CLI.new do
+						version '1.0.2'
+					end.usage.should include("--help (-h) - display this help message\n   --version - display version string")
+			end
+
+			it "should reserve --version switch" do
+				lambda {
+					ps = CLI.new do
+						version '1.0.2'
+						switch :version
+					end
+				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch version specified twice'
+
+				lambda {
+					ps = CLI.new do
+						version '1.0.2'
+						option :version
+					end
+				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'option and switch version specified twice'
+			end
+		end
+
 		it "should allow describing switches" do
 			ss = CLI.new do
 				switch :debug, :short => :d, :description => "enable debugging"

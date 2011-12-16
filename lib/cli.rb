@@ -101,10 +101,15 @@ class CLI
 
 		instance_eval(&block) if block_given?
 		switch :help, :short => :h, :description => 'display this help message'
+		switch :version, :description => 'display version string' if @version
 	end
 
 	def description(desc)
 		@description = desc
+	end
+
+	def version(version)
+		@version = version.to_s
 	end
 
 	def stdin(name = :data, options = {})
@@ -148,6 +153,12 @@ class CLI
 		# check help
 		if argv.include? '-h' or argv.include? '--help' 
 			values.help = usage
+			return values
+		end
+
+		# handle version
+		if @version and argv.include? '--version' 
+			values.version = "#{name} version \"#{@version}\""
 			return values
 		end
 
@@ -211,10 +222,14 @@ class CLI
 		end
 	end
 
+	def name
+		File.basename $0
+	end
+
 	def usage(msg = nil)
 		out = StringIO.new
 		out.puts msg if msg
-		out.print "Usage: #{File.basename $0}"
+		out.print "Usage: #{name}"
 		out.print ' [switches|options]' if not @switches.empty? and not @options.empty?
 		out.print ' [switches]' if not @switches.empty? and @options.empty?
 		out.print ' [options]' if @switches.empty? and not @options.empty?
