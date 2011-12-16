@@ -92,7 +92,7 @@ Example version output:
 
     sinatra version "0.0.4"
 
-### Log processor example
+### Statistic data processor example
 
 ```ruby
 require 'cli'
