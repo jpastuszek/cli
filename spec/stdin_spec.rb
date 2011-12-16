@@ -23,7 +23,7 @@ EOF
 			ps.stdin.should be_a IO
 		end
 
-		it "should support casting" do
+		it "should support casting to YAML" do
 			ps = nil
 			ss = CLI.new do
 				stdin :log_data, :cast => YAML, :description => 'log statistic data in YAML format'
@@ -34,6 +34,40 @@ EOF
 			end
 
 			ps.stdin.should == {:parser=>{:successes=>41, :failures=>0}}
+		end
+
+		it "should support casting with lambda" do
+			ps = nil
+			ss = CLI.new do
+				stdin :log_data, :cast => lambda{|sin| sin.read.upcase}, :description => 'log statistic data in YAML format'
+			end
+
+			stdin_write('hello world') do
+				ps = ss.parse
+			end
+
+			ps.stdin.should == 'HELLO WORLD'
+		end
+
+		it "should support casting with custom class" do
+			class Upcaser
+				def initialize(io)
+					@value = io.read.upcase
+				end
+				attr_reader :value
+			end
+
+			ps = nil
+			ss = CLI.new do
+				stdin :log_data, :cast => Upcaser, :description => 'log statistic data in YAML format'
+			end
+
+			stdin_write('hello world') do
+				ps = ss.parse
+			end
+
+			ps.stdin.should be_a Upcaser
+			ps.stdin.value.should == 'HELLO WORLD'
 		end
 	end
 end

@@ -15,17 +15,24 @@ class CLI
 		module Cast
 			def cast(value)
 				begin
-					cast_class = @options[:cast]
-					if cast_class == nil
-						value
-					elsif cast_class == Integer
-						value.to_i
-					elsif cast_class == Float
-						value.to_f
-					elsif cast_class == YAML
-						YAML.load(value)
+					cast_to = @options[:cast] or return value
+
+					if cast_to.is_a? Module # all classes are modules
+						if cast_to == Integer
+							value.to_i
+						elsif cast_to == Float
+							value.to_f
+						elsif cast_to == YAML
+							YAML.load(value)
+						else
+							cast_to.new(value)
+						end
 					else
-						cast_class.new(value)
+						if cast_to.is_a? Proc
+							cast_to.call(value)
+						else
+							raise ArgumentError, "can't cast to instance of #{cast_to.class.name}"
+						end
 					end
 				rescue => e
 					raise ParsingError::CastError.new(@name, @options[:cast].name, e)

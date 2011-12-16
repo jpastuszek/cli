@@ -18,6 +18,37 @@ describe CLI do
 			ps.location.should == 'singapore'
 		end
 
+		it "should support casting" do
+			ps = CLI.new do
+				option :size, :cast => Integer
+			end.parse(['--size', '24'])
+			ps.size.should be_a Integer
+			ps.size.should == 24
+		end
+
+		it "should support casting with lambda" do
+			ps = CLI.new do
+				option :size, :cast => lambda{|v| v.to_i + 2}
+			end.parse(['--size', '24'])
+			ps.size.should be_a Integer
+			ps.size.should == 26
+		end
+
+		it "should support casting with class" do
+			class Upcaser
+				def initialize(string)
+					@value = string.upcase
+				end
+				attr_reader :value
+			end
+
+			ps = CLI.new do
+				option :text, :cast => Upcaser
+			end.parse(['--text', 'hello world'])
+			ps.text.should be_a Upcaser
+			ps.text.value.should == 'HELLO WORLD'
+		end
+
 		it "should handle default values" do
 			ps = CLI.new do
 				option :location, :default => 'singapore'
@@ -38,14 +69,6 @@ describe CLI do
 			ps.location.should == 'singapore'
 			ps.size.should be_a Integer
 			ps.size.should == 23
-		end
-
-		it "should support casting" do
-			ps = CLI.new do
-				option :size, :cast => Integer
-			end.parse(['--size', '24'])
-			ps.size.should be_a Integer
-			ps.size.should == 24
 		end
 
 		it "not given and not defined options should be nil" do
