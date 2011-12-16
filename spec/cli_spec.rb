@@ -459,44 +459,66 @@ EOF
 	end
 
 	describe "usage and description" do
-		it "parse should set help variable if -h or --help specified in the argument list and not parse the input" do
-			ss = CLI.new do
-				option :location, :short => :l
-				option :group, :default => 'red'
-				option :power_up, :short => :p
-				option :speed, :short => :s, :cast => Integer
-				option :size
-				switch :debug
+		describe "help switch" do
+			it "parse should set help variable if -h or --help specified in the argument list and not parse the input" do
+				ss = CLI.new do
+					option :location, :short => :l
+					option :group, :default => 'red'
+					option :power_up, :short => :p
+					option :speed, :short => :s, :cast => Integer
+					option :size
+					switch :debug
 
-				argument :log, :cast => Pathname
-				argument :magick, :default => 'word'
-				argument :test
-				argument :code, :cast => Integer, :default => '123'
+					argument :log, :cast => Pathname
+					argument :magick, :default => 'word'
+					argument :test
+					argument :code, :cast => Integer, :default => '123'
+				end
+				
+				ps = ss.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
+				ps.help.should be_nil
+				ps.location.should == 'singapore'
+
+				ps = ss.parse(['-h', '-l', 'singapore', '--power-up'])
+				ps.help.should be_a String
+				ps.location.should be_nil
+
+				ps = ss.parse(['-l', 'singapore', '--power-up', '-h', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
+				ps.help.should be_a String
+				ps.location.should be_nil
+
+				ps = ss.parse(['-l', 'singapore', '--power-up', '--help'])
+				ps.help.should be_a String
+				ps.location.should be_nil
+
+				ps = ss.parse(['--help', '-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
+				ps.help.should be_a String
+				ps.location.should be_nil
+
+				ps = ss.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
+				ps.help.should be_nil
+				ps.location.should == 'singapore'
 			end
-			
-			ps = ss.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
-			ps.help.should be_nil
-			ps.location.should == 'singapore'
 
-			ps = ss.parse(['-h', '-l', 'singapore', '--power-up'])
-			ps.help.should be_a String
-			ps.location.should be_nil
+			it "should reserve --help and -h switches" do
+				lambda {
+					ps = CLI.new do
+						switch :help
+					end
+				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch help specified twice'
 
-			ps = ss.parse(['-l', 'singapore', '--power-up', '-h', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
-			ps.help.should be_a String
-			ps.location.should be_nil
+				lambda {
+					ps = CLI.new do
+						switch :help2, :short => :h
+					end
+				}.should raise_error CLI::ParserError::ShortNameSpecifiedTwiceError, 'short switch h specified twice'
+			end
 
-			ps = ss.parse(['-l', 'singapore', '--power-up', '--help'])
-			ps.help.should be_a String
-			ps.location.should be_nil
-
-			ps = ss.parse(['--help', '-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
-			ps.help.should be_a String
-			ps.location.should be_nil
-
-			ps = ss.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
-			ps.help.should be_nil
-			ps.location.should == 'singapore'
+			it "should display help switch in the help message as the last entry" do
+					CLI.new do
+						switch :test
+					end.usage.should include("--test\n   --help (-h) - display this help message")
+			end
 		end
 
 		it "should allow describing switches" do
@@ -566,7 +588,8 @@ EOF
 				option :location, :short => :l
 			end
 
-			ss.usage.first.should == "Usage: rspec [options]\n"
+			# switches will always be there due to implicit --help switch
+			ss.usage.first.should == "Usage: rspec [switches|options]\n"
 		end
 
 		it "should suggest that switches or options can be used in usage line" do
@@ -643,6 +666,7 @@ Switches:
    --debug (-d) - enable debugging
    --logging (-l)
    --run
+   --help (-h) - display this help message
 Options:
    --location (-r) - place where server is located
    --group [red]

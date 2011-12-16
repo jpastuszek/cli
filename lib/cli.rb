@@ -98,7 +98,9 @@ class CLI
 		@arguments = Arguments.new
 		@switches = Switches.new
 		@options = Options.new
+
 		instance_eval(&block) if block_given?
+		switch :help, :short => :h, :description => 'display this help message'
 	end
 
 	def description(desc)
