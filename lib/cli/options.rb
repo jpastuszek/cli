@@ -1,19 +1,12 @@
 require 'cli/switches'
 
 class CLI::Options < CLI::Switches
-	def initialize
-		super
-		@defaults = []
-		@mandatory = []
+	def defaults
+		select{|o| o.has_default?}
 	end
 
-	def <<(option_dsl)
-		super option_dsl
-		@defaults << option_dsl if option_dsl.has_default?
-		@mandatory << option_dsl if option_dsl.mandatory?
+	def mandatory
+		select{|o| o.mandatory?}
 	end
-
-	attr_reader :defaults
-	attr_reader :mandatory
 end
 
