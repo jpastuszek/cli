@@ -172,11 +172,11 @@ EOF
 					argument :magick, :default => 'word'
 					argument :test
 					argument :code, :cast => Integer, :default => '123'
-				end.parse(['/tmp', 'hello', '42'])
+				end.parse(['/tmp', 'hello', 'world'])
 				ps.log.to_s.should == '/tmp'
-				ps.magick.should == 'word'
-				ps.test.should == 'hello'
-				ps.code.should == 42
+				ps.magick.should == 'hello'
+				ps.test.should == 'world'
+				ps.code.should == 123
 			end
 		end
 	end

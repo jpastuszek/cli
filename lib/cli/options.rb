@@ -10,7 +10,7 @@ class CLI::Options < CLI::Switches
 	def <<(option_dsl)
 		super option_dsl
 		@defaults << option_dsl if option_dsl.has_default?
-		@mandatory << option_dsl unless option_dsl.optional?
+		@mandatory << option_dsl if option_dsl.mandatory?
 	end
 
 	attr_reader :defaults

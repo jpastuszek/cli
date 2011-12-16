@@ -52,8 +52,8 @@ class CLI
 				@options.member? :default
 			end
 
-			def optional?
-				has_default?
+			def mandatory?
+				not has_default?
 			end
 		end
 
@@ -112,8 +112,8 @@ class CLI
 			include DSL::Value
 			include DSL::Cast
 
-			def optional?
-				has_default? or not @options[:required]
+			def mandatory?
+				not has_default? and @options[:required]
 			end
 		end
 	end
