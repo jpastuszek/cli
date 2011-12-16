@@ -5,16 +5,16 @@
 
 Gem::Specification.new do |s|
   s.name = "cli"
-  s.version = "0.0.4"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2011-12-15"
+  s.date = "2011-12-16"
   s.description = "Provides DSL for command-line options, switches and arguments parser and stdin handling with generated usage printer"
   s.email = "jpastuszek@gmail.com"
   s.extra_rdoc_files = [
     "LICENSE.txt",
-    "README.rdoc"
+    "README.md"
   ]
   s.files = [
     ".document",
@@ -22,10 +22,12 @@ Gem::Specification.new do |s|
     "Gemfile",
     "Gemfile.lock",
     "LICENSE.txt",
-    "README.rdoc",
+    "README.md",
     "Rakefile",
     "VERSION",
     "cli.gemspec",
+    "examples/processor",
+    "examples/sinatra",
     "features/cli.feature",
     "features/step_definitions/cli_steps.rb",
     "features/support/env.rb",
@@ -34,8 +36,15 @@ Gem::Specification.new do |s|
     "lib/cli/dsl.rb",
     "lib/cli/options.rb",
     "lib/cli/switches.rb",
+    "spec/argument_spec.rb",
     "spec/cli_spec.rb",
-    "spec/spec_helper.rb"
+    "spec/conflict_reporting_spec.rb",
+    "spec/option_spec.rb",
+    "spec/separator_spec.rb",
+    "spec/spec_helper.rb",
+    "spec/stdin_spec.rb",
+    "spec/switch_spec.rb",
+    "spec/usage_spec.rb"
   ]
   s.homepage = "http://github.com/jpastuszek/cli"
   s.licenses = ["MIT"]
