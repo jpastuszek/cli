@@ -100,6 +100,7 @@ class CLI
 		@options = Options.new
 
 		instance_eval(&block) if block_given?
+
 		switch :help, :short => :h, :description => 'display this help message'
 		switch :version, :description => 'display version string' if @version
 	end
