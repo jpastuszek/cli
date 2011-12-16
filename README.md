@@ -28,16 +28,16 @@ require 'ip'
 options = CLI.new do
 	description 'Example CLI usage for Sinatra server application'
 	version (cli_root + 'VERSION').read
-	switch :no_bind,					:description => "Do not bind to TCP socket - useful with -s fastcgi option"
-	switch :no_logging,				:description => "Disable logging"
-	switch :debug,						:description => "Enable debugging"
+	switch :no_bind,			:description => "Do not bind to TCP socket - useful with -s fastcgi option"
+	switch :no_logging,			:description => "Disable logging"
+	switch :debug,				:description => "Enable debugging"
 	switch :no_optimization,	:description => "Disable size hinting and related optimization (loading, prescaling)"
-	option :bind,							:short => :b, :default => '127.0.0.1', :cast => IP, :description => "HTTP server bind address - use 0.0.0.0 to bind to all interfaces"
-	option :port,							:short => :p, :default => 3100, :cast => Integer, :description => "HTTP server TCP port"
-	option :server,						:short => :s, :default => 'mongrel', :description => "Rack server handler like thin, mongrel, webrick, fastcgi etc."
-	option :limit_memory,			:default => 128*1024**2, :cast => Integer, :description => "Image cache heap memory size limit in bytes"
-	option :limit_map,				:default => 256*1024**2, :cast => Integer, :description => "Image cache memory mapped file size limit in bytes - used when heap memory limit is used up"
-	option :limit_disk,				:default => 0, :cast => Integer, :description => "Image cache temporary file size limit in bytes - used when memory mapped file limit is used up"
+	option :bind,				:short => :b, :default => '127.0.0.1', :cast => IP, :description => "HTTP server bind address - use 0.0.0.0 to bind to all interfaces"
+	option :port,				:short => :p, :default => 3100, :cast => Integer, :description => "HTTP server TCP port"
+	option :server,				:short => :s, :default => 'mongrel', :description => "Rack server handler like thin, mongrel, webrick, fastcgi etc."
+	option :limit_memory,		:default => 128*1024**2, :cast => Integer, :description => "Image cache heap memory size limit in bytes"
+	option :limit_map,			:default => 256*1024**2, :cast => Integer, :description => "Image cache memory mapped file size limit in bytes - used when heap memory limit is used up"
+	option :limit_disk,			:default => 0, :cast => Integer, :description => "Image cache temporary file size limit in bytes - used when memory mapped file limit is used up"
 end.parse!
 
 p options
@@ -67,6 +67,8 @@ To see help message use --help or -h anywhere on the command line:
 
     examples/sinatra --help
 
+Example help output:
+
     Usage: sinatra [switches|options]
     Example CLI usage for Sinatra server application
     Switches:
@@ -87,6 +89,8 @@ To see help message use --help or -h anywhere on the command line:
 To see version string use --version
 
     examples/sinatra --version
+
+Example version output:
 
     sinatra version "0.0.4"
 
