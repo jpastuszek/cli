@@ -184,6 +184,15 @@ describe CLI do
 			ss.usage.should include("4")
 		end
 
+		it "should suggest that arguments can be used in usage line" do
+			ss = CLI.new do
+				argument :location
+			end
+
+			# switches will always be there due to implicit --help switch
+			ss.usage.first.should == "Usage: rspec [switches] [--] location\n"
+		end
+
 		it "should suggest that switches can be used in usage line" do
 			ss = CLI.new do
 				switch :location, :short => :l
@@ -266,7 +275,7 @@ describe CLI do
 			end.usage
 
 			u.should == <<EOS
-Usage: rspec [switches|options] log magick string number code illegal-prime < log-data
+Usage: rspec [switches|options] [--] log magick string number code illegal-prime < log-data
 Log file processor
 Input:
    log-data - YAML formatted log data

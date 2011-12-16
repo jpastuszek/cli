@@ -151,16 +151,19 @@ class CLI
 		values = Values.new
 		argv = _argv.dup
 
-		# check help
-		if argv.include? '-h' or argv.include? '--help' 
-			values.help = usage
-			return values
-		end
+		# check help and version
+		argv.each do |arg|
+			break if arg == '--'
 
-		# handle version
-		if @version and argv.include? '--version' 
-			values.version = "#{name} version \"#{@version}\""
-			return values
+			if arg == '-h' or arg == '--help' 
+				values.help = usage
+				return values
+			end
+
+			if @version and arg == '--version' 
+				values.version = "#{name} version \"#{@version}\""
+				return values
+			end
 		end
 
 		# set defaults
@@ -171,7 +174,7 @@ class CLI
 		# process switches
 		mandatory_options = @options.mandatory.dup
 
-		while Switches.is_switch?(argv.first)
+		while not argv.first == '--' and Switches.is_switch?(argv.first)
 			arg = argv.shift
 
 			if switch = @switches.find(arg)
@@ -184,6 +187,8 @@ class CLI
 				raise ParsingError::UnknownSwitchError.new(arg) unless switch
 			end
 		end
+
+		argv.shift if argv.first == '--'
 
 		# check mandatory options
 		raise ParsingError::MandatoryOptionsNotSpecifiedError.new(mandatory_options) unless mandatory_options.empty?
@@ -238,6 +243,7 @@ class CLI
 		out.print ' [switches|options]' if not @switches.empty? and not @options.empty?
 		out.print ' [switches]' if not @switches.empty? and @options.empty?
 		out.print ' [options]' if @switches.empty? and not @options.empty?
+		out.print ' [--]' if not @arguments.empty? and (not @switches.empty? or not @options.empty?)
 		out.print ' ' + @arguments.map{|a| a.to_s}.join(' ') unless @arguments.empty?
 		out.print " < #{@stdin}" if @stdin
 
