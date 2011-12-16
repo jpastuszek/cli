@@ -2,7 +2,8 @@
 
 Command Line Interface gem allows you to quickly specify command argument parser that will automatically handle usage rendering, casting, default values and other stuff for you.
 
-CLI supports specifying:
+## CLI supports specifying:
+
 * switches - (--name or -n) binary operators, by default set to nil and when specified set to true
 * options - (--name John or -n John) switches that take value; default value can be given, otherwise default to nil
 * arguments - (John) capture command arguments that are not switches
