@@ -39,13 +39,13 @@ class CLI
 			end
 
 			def description
-				@options[:description]
+				@options[:description].to_s
 			end
 		end
 
 		module Value
 			def default
-				@options[:default]
+				@options[:default].to_s
 			end
 
 			def has_default?

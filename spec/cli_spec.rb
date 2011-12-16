@@ -258,6 +258,17 @@ EOF
 			ps.size.should == 23
 		end
 
+		it "default value is casted" do
+			ps = CLI.new do
+				option :location, :default => 'singapore'
+				option :size, :cast => Integer, :default => 23.99
+			end.parse([])
+			ps.location.should be_a String
+			ps.location.should == 'singapore'
+			ps.size.should be_a Integer
+			ps.size.should == 23
+		end
+
 		it "should support casting" do
 			ps = CLI.new do
 				option :size, :cast => Integer
@@ -471,6 +482,15 @@ EOF
 			ss.usage.should include("enable debugging")
 		end
 
+		it "switch description should be casted to string" do
+			ss = CLI.new do
+				switch :debug, :short => :d, :description => 2 + 2
+				switch :logging
+			end
+
+			ss.usage.should include("4")
+		end
+
 		it "should allow describing options" do
 			ss = CLI.new do
 				option :location, :short => :l, :description => "place where server is located"
@@ -480,6 +500,15 @@ EOF
 			ss.usage.should include("place where server is located")
 		end
 
+		it "option description should be casted to string" do
+			ss = CLI.new do
+				option :location, :short => :l, :description => 2 + 2
+				option :group, :default => 'red'
+			end
+
+			ss.usage.should include("4")
+		end
+
 		it "should allow describing arguments" do
 			ss = CLI.new do
 				option :group, :default => 'red'
@@ -487,6 +516,15 @@ EOF
 			end
 
 			ss.usage.should include("log file to process")
+		end
+
+		it "argument description should be casted to string" do
+			ss = CLI.new do
+				option :group, :default => 'red'
+				argument :log, :cast => Pathname, :description => 2 + 2
+			end
+
+			ss.usage.should include("4")
 		end
 
 		it "should suggest that switches can be used in usage line" do
