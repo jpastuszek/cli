@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'yaml'
 
 describe CLI do
 	describe 'STDIN handling' do
@@ -23,7 +24,7 @@ EOF
 			ps.stdin.should be_a IO
 		end
 
-		it "should support casting to YAML" do
+		it "should support casting to module responding to load" do
 			ps = nil
 			ss = CLI.new do
 				stdin :log_data, :cast => YAML, :description => 'log statistic data in YAML format'

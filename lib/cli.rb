@@ -1,6 +1,5 @@
 require 'ostruct'
 require 'stringio'
-require 'yaml'
 
 require 'cli/dsl'
 require 'cli/arguments'

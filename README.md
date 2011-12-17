@@ -96,6 +96,7 @@ Example version output:
 
 ```ruby
 require 'cli'
+require 'yaml'
 
 options = CLI.new do
 	description 'Generate blog posts in given Jekyll directory from input statistics'

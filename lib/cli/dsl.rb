@@ -22,10 +22,12 @@ class CLI
 							value.to_i
 						elsif cast_to == Float
 							value.to_f
-						elsif cast_to == YAML
-							YAML.load(value)
-						else
+						elsif cast_to.respond_to? :new
 							cast_to.new(value)
+						elsif cast_to.respond_to? :load
+							cast_to.load(value)
+						else
+							raise ArgumentError, "can't cast to class or module #{cast_to.class.name}"
 						end
 					else
 						if cast_to.is_a? Proc
