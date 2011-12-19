@@ -39,13 +39,13 @@ describe CLI do
 				ps = CLI.new do
 					switch :location, :short => "l"
 				end
-			}.should raise_error CLI::ParserError::ShortNameNotSymbolError, 'short name has to be of type Symbol, got String'
+			}.should raise_error CLI::ParserError::ShortNameNotSymbolError, 'short name for --location has to be of type Symbol, got String'
 
 			lambda {
 				ps = CLI.new do
 					switch :location, :short => :abc
 				end
-			}.should raise_error CLI::ParserError::ShortNameIsInvalidError, 'short name has to be one letter symbol, got abc'
+			}.should raise_error CLI::ParserError::ShortNameIsInvalidError, 'short name for --location has to be one letter symbol, got :abc'
 		end
 
 		it "should raise error on unrecognized switch" do

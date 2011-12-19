@@ -22,31 +22,31 @@ class CLI
 
 		class ArgumentNameSpecifiedTwice < ParserError
 			def initialize(arg)
-				super("argument #{arg} specified twice")
+				super("argument '#{arg}' specified twice")
 			end
 		end
 
 		class LongNameSpecifiedTwiceError < ParserError
-			def initialize(what, name)
-				super("#{what} #{name} specified twice")
+			def initialize(what, switch_dsl)
+				super("#{what} #{switch_dsl.switch} specified twice")
 			end
 		end
 
 		class ShortNameSpecifiedTwiceError < ParserError
-			def initialize(what, name)
-				super("short #{what} #{name} specified twice")
+			def initialize(what, switch_dsl)
+				super("short #{what} #{switch_dsl.switch_short} specified twice")
 			end
 		end
 
 		class ShortNameNotSymbolError < ParserError
-			def initialize(short)
-				super("short name has to be of type Symbol, got #{short.class.name}")
+			def initialize(switch_dsl, short)
+				super("short name for #{switch_dsl.switch} has to be of type Symbol, got #{short.class.name}")
 			end
 		end
 
 		class ShortNameIsInvalidError < ParserError
-			def initialize(short)
-				super("short name has to be one letter symbol, got #{short}")
+			def initialize(switch_dsl, short)
+				super("short name for #{switch_dsl.switch} has to be one letter symbol, got #{short.inspect}")
 			end
 		end
 	end
@@ -72,13 +72,13 @@ class CLI
 
 		class MandatoryArgumentNotSpecifiedError < ParsingError
 			def initialize(arg)
-				super("mandatory argument #{arg} not given")
+				super("mandatory argument '#{arg}' not given")
 			end
 		end
 
 		class CastError < ParsingError
 			def initialize(arg, cast_name, error)
-				super("failed to cast: #{arg} to type: #{cast_name}: #{error}")
+				super("failed to cast: '#{arg}' to type: #{cast_name}: #{error}")
 			end
 		end
 	end
@@ -127,10 +127,10 @@ class CLI
 	def switch(name, options = {})
 		switch_dsl = DSL::Switch.new(name, options)
 
-		raise ParserError::LongNameSpecifiedTwiceError.new('switch', switch_dsl.name) if @switches.has_long?(switch_dsl) 
-		raise ParserError::LongNameSpecifiedTwiceError.new('option and switch', switch_dsl.name) if @options.has_long?(switch_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('switch', switch_dsl.short) if @switches.has_short?(switch_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('option and switch', switch_dsl.short) if @options.has_short?(switch_dsl) 
+		raise ParserError::LongNameSpecifiedTwiceError.new('switch', switch_dsl) if @switches.has_long?(switch_dsl) 
+		raise ParserError::LongNameSpecifiedTwiceError.new('option and switch', switch_dsl) if @options.has_long?(switch_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('switch', switch_dsl) if @switches.has_short?(switch_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('option and switch', switch_dsl) if @options.has_short?(switch_dsl) 
 
 		@switches << switch_dsl
 	end
@@ -138,10 +138,10 @@ class CLI
 	def option(name, options = {})
 		option_dsl = DSL::Option.new(name, options)
 
-		raise ParserError::LongNameSpecifiedTwiceError.new('option', option_dsl.name) if @options.has_long?(option_dsl) 
-		raise ParserError::LongNameSpecifiedTwiceError.new('switch and option', option_dsl.name) if @switches.has_long?(option_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('option', option_dsl.short) if @options.has_short?(option_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('switch and option', option_dsl.short) if @switches.has_short?(option_dsl) 
+		raise ParserError::LongNameSpecifiedTwiceError.new('option', option_dsl) if @options.has_long?(option_dsl) 
+		raise ParserError::LongNameSpecifiedTwiceError.new('switch and option', option_dsl) if @switches.has_long?(option_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('option', option_dsl) if @options.has_short?(option_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('switch and option', option_dsl) if @switches.has_short?(option_dsl) 
 
 		@options << option_dsl
 	end

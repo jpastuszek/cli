@@ -89,8 +89,8 @@ class CLI
 			def initialize(name, options = {})
 				super(name, options)
 				if short = options[:short]
-					raise ParserError::ShortNameNotSymbolError.new(short) if not short.is_a? Symbol
-					raise ParserError::ShortNameIsInvalidError.new(short) if short.to_s.length > 1
+					raise ParserError::ShortNameNotSymbolError.new(self, short) if not short.is_a? Symbol
+					raise ParserError::ShortNameIsInvalidError.new(self, short) if short.to_s.length > 1
 				end
 			end
 

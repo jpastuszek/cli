@@ -64,13 +64,13 @@ describe CLI do
 					ps = CLI.new do
 						switch :help
 					end
-				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch help specified twice'
+				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch --help specified twice'
 
 				lambda {
 					ps = CLI.new do
 						switch :help2, :short => :h
 					end
-				}.should raise_error CLI::ParserError::ShortNameSpecifiedTwiceError, 'short switch h specified twice'
+				}.should raise_error CLI::ParserError::ShortNameSpecifiedTwiceError, 'short switch -h specified twice'
 			end
 
 			it "should display help switch in the help message as the last entry" do
@@ -119,14 +119,14 @@ describe CLI do
 						version '1.0.2'
 						switch :version
 					end
-				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch version specified twice'
+				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch --version specified twice'
 
 				lambda {
 					ps = CLI.new do
 						version '1.0.2'
 						option :version
 					end
-				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'option and switch version specified twice'
+				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'option and switch --version specified twice'
 			end
 		end
 

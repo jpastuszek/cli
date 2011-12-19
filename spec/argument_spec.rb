@@ -63,7 +63,7 @@ describe CLI do
 					argument :number
 					argument :number
 				end
-			}.should raise_error CLI::ParserError::ArgumentNameSpecifiedTwice, 'argument number specified twice'
+			}.should raise_error CLI::ParserError::ArgumentNameSpecifiedTwice, "argument 'number' specified twice"
 		end
 
 		it "should be required by default and raise error if not given" do
@@ -71,7 +71,7 @@ describe CLI do
 				ps = CLI.new do
 					argument :log
 				end.parse([])
-			}.should raise_error CLI::ParsingError::MandatoryArgumentNotSpecifiedError, 'mandatory argument log not given'
+			}.should raise_error CLI::ParsingError::MandatoryArgumentNotSpecifiedError, "mandatory argument 'log' not given"
 		end
 
 		it "should raise error if casting fail" do
@@ -80,7 +80,7 @@ describe CLI do
 				ps = CLI.new do
 					argument :log, :cast => IP
 				end.parse(['abc'])
-			}.should raise_error CLI::ParsingError::CastError, 'failed to cast: log to type: IP: invalid address'
+			}.should raise_error CLI::ParsingError::CastError, "failed to cast: 'log' to type: IP: invalid address"
 		end
 
 		describe "with defaults" do
