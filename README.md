@@ -180,6 +180,7 @@ Example usage:
 
     examples/ls
 
+Prints:
 
     .document
     .git
@@ -191,9 +192,11 @@ Example usage:
     features
     ...
 
+With directory list:
     
     examples/ls *
 
+Prints:
 
     examples/.ls.swp
     examples/ls
@@ -208,9 +211,11 @@ Example usage:
     pkg/cli-0.0.2.gem
     ...
     
+Long printout:
 
-    examples/ls -h *
+    examples/ls -l *
 
+Prints:
 
     501:20 examples/.ls.swp
     501:20 examples/ls
