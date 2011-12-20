@@ -305,10 +305,13 @@ class CLI
 			out.puts "Arguments:"
 			described_arguments.each do |a|
 				unless a.multiple?
-					out.puts "   #{a} - #{a.description}"
+					out.print "   #{a}"
 				else
-					out.puts "   #{a}* - #{a.description}"
+					out.print "   #{a}*"
 				end
+				out.print " [%s]" % (a.default.is_a?(Array) ? a.default.join(' ') : a.default) if a.has_default?
+				out.print " - #{a.description}"
+				out.puts
 			end
 		end
 

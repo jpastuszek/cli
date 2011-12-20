@@ -295,9 +295,9 @@ Options:
    --size
 Arguments:
    log - log file to process
-   code - secret code
+   code [123] - secret code
    illegal-prime - prime number that represents information that it is forbidden to possess or distribute
-   files* - files to process
+   files* [test 1 2] - files to process
 EOS
 		end
 	end
