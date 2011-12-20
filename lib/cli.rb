@@ -266,7 +266,7 @@ class CLI
 		out.print ' [switches]' if not @switches.empty? and @options.empty?
 		out.print ' [options]' if @switches.empty? and not @options.empty?
 		out.print ' [--]' if not @arguments.empty? and (not @switches.empty? or not @options.empty?)
-		out.print ' ' + @arguments.map{|a| a.to_s}.join(' ') unless @arguments.empty?
+		out.print ' ' + @arguments.map{|a| a.multiple? ? a.to_s + '*': a.to_s}.join(' ') unless @arguments.empty?
 		out.print " < #{@stdin}" if @stdin
 
 		out.puts
@@ -304,7 +304,11 @@ class CLI
 		unless described_arguments.empty?
 			out.puts "Arguments:"
 			described_arguments.each do |a|
-				out.puts "   #{a} - #{a.description}"
+				unless a.multiple?
+					out.puts "   #{a} - #{a.description}"
+				else
+					out.puts "   #{a}* - #{a.description}"
+				end
 			end
 		end
 

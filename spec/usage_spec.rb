@@ -272,10 +272,11 @@ describe CLI do
 				argument :number, :cast => Integer
 				argument :code, :cast => Integer, :default => '123', :description => "secret code"
 				argument :illegal_prime, :cast => Integer, :description => "prime number that represents information that it is forbidden to possess or distribute"
+				arguments :files, :cast => Pathname, :default => ['test', '1', '2'], :description => "files to process"
 			end.usage
 
 			u.should == <<EOS
-Usage: rspec [switches|options] [--] log magick string number code illegal-prime < log-data
+Usage: rspec [switches|options] [--] log magick string number code illegal-prime files* < log-data
 Log file processor
 Input:
    log-data - YAML formatted log data
@@ -296,6 +297,7 @@ Arguments:
    log - log file to process
    code - secret code
    illegal-prime - prime number that represents information that it is forbidden to possess or distribute
+   files* - files to process
 EOS
 		end
 	end
