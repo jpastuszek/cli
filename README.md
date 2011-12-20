@@ -138,8 +138,8 @@ The `options` variable will contain:
 
 ### Ls like utility
 
-'arguments' specifier can be used to match multiple arguments.
-The 'arguments' specifier matched value will always be an array of casted elements.
+`arguments` specifier can be used to match multiple arguments.
+The `arguments` specifier matched value will always be an array of casted elements.
 Default and mandatory arguments will have priority on matching values (see specs for examples).
 
 ```ruby
@@ -180,6 +180,7 @@ Example usage:
 
     examples/ls
 
+
     .document
     .git
     .gitignore
@@ -189,8 +190,10 @@ Example usage:
     examples
     features
     ...
+
     
     examples/ls *
+
 
     examples/.ls.swp
     examples/ls
@@ -205,7 +208,9 @@ Example usage:
     pkg/cli-0.0.2.gem
     ...
     
+
     examples/ls -h *
+
 
     501:20 examples/.ls.swp
     501:20 examples/ls
