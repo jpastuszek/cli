@@ -27,7 +27,7 @@ require 'ip'
 
 options = CLI.new do
 	description 'Example CLI usage for Sinatra server application'
-	version (cli_root + 'VERSION').read
+	version "1.0.0"
 	switch :no_bind,			:description => "Do not bind to TCP socket - useful with -s fastcgi option"
 	switch :no_logging,			:description => "Disable logging"
 	switch :debug,				:description => "Enable debugging"
