@@ -96,6 +96,7 @@ Example version output:
 
 ```ruby
 require 'cli'
+require 'pathname'
 require 'yaml'
 
 options = CLI.new do
@@ -135,6 +136,90 @@ The `options` variable will contain:
 
     #<CLI::Values location="Singapore", stdin={:parser=>{:failures=>0, :successes=>41}}, jekyll_dir=#<Pathname:/var/lib/vhs/jekyll>, csv_dir=#<Pathname:csv>>
 
+### Ls like utility
+
+'arguments' specifier can be used to match multiple arguments.
+The 'arguments' specifier matched value will always be an array of casted elements.
+Default and mandatory arguments will have priority on matching values (see specs for examples).
+
+```ruby
+require 'cli'
+require 'pathname'
+
+options = CLI.new do
+	description 'Lists content of directories'
+	switch :long, :short => :l, :description => 'use long listing'
+	arguments :directories, :cast => Pathname, :default => '.', :description => 'directories to list content of'
+end.parse!
+
+options.directories.each do |dir|
+	next unless dir.directory?
+	dir.each_entry do |e|
+		next if e.to_s == '.' or e.to_s == '..'
+		e = dir + e
+		if options.long
+			puts "#{e.stat.uid}:#{e.stat.gid} #{e}"
+		else
+			puts e
+		end
+	end
+end
+```
+
+Example help message:
+
+    Usage: ls [switches] [--] directories*
+    Lists content of directories
+    Switches:
+       --long (-l) - use long listing
+       --help (-h) - display this help message
+    Arguments:
+       directories* [.] - directories to list content of
+
+Example usage:
+
+    examples/ls
+
+    .document
+    .git
+    .gitignore
+    .README.md.swp
+    .rspec
+    cli.gemspec
+    examples
+    features
+    ...
+    
+    examples/ls *
+
+    examples/.ls.swp
+    examples/ls
+    examples/processor
+    examples/sinatra
+    features/cli.feature
+    features/step_definitions
+    features/support
+    lib/cli
+    lib/cli.rb
+    pkg/cli-0.0.1.gem
+    pkg/cli-0.0.2.gem
+    ...
+    
+    examples/ls -h *
+
+    501:20 examples/.ls.swp
+    501:20 examples/ls
+    501:20 examples/processor
+    501:20 examples/sinatra
+    501:20 features/cli.feature
+    501:20 features/step_definitions
+    501:20 features/support
+    501:20 lib/cli
+    501:20 lib/cli.rb
+    501:20 pkg/cli-0.0.1.gem
+    501:20 pkg/cli-0.0.2.gem
+    ...
+    
 ## Contributing to CLI
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
