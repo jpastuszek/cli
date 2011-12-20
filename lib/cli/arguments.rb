@@ -6,5 +6,9 @@ class CLI::Arguments < Array
 	def mandatory
 		select{|a| a.mandatory?}
 	end
+
+	def multiple
+		select{|a| a.multiple?}
+	end
 end
 

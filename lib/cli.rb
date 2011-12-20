@@ -49,6 +49,12 @@ class CLI
 				super("short name for #{switch_dsl.switch} has to be one letter symbol, got #{short.inspect}")
 			end
 		end
+
+		class MultipleArgumentsSpecifierError < ParserError
+			def initialize(arguments_dsl)
+				super("only one 'arguments' specifier can be used, got: #{arguments_dsl.join(', ')}")
+			end
+		end
 	end
 
 	class ParsingError < ArgumentError
@@ -122,6 +128,16 @@ class CLI
 		raise ParserError::ArgumentNameSpecifiedTwice.new(argument_dsl.name) if @arguments.has?(argument_dsl)
 
 		@arguments << argument_dsl
+	end
+
+	def arguments(name, options = {})
+		arguments_dsl = DSL::Arguments.new(name, options)
+
+		raise ParserError::ArgumentNameSpecifiedTwice.new(arguments_dsl.name) if @arguments.has?(arguments_dsl)
+
+		@arguments << arguments_dsl
+
+		raise ParserError::MultipleArgumentsSpecifierError.new(@arguments.multiple) if @arguments.multiple.length > 1
 	end
 
 	def switch(name, options = {})
@@ -201,6 +217,13 @@ class CLI
 				argument.default # use defaults for optional arguments
 			else
 				argv.shift or raise ParsingError::MandatoryArgumentNotSpecifiedError.new(argument)
+			end
+
+			if argument.multiple?
+				value = [value] unless value.is_a? Array
+				while argv.length > arguments.length
+					value << argv.shift
+				end
 			end
 
 			mandatory_arguments_left -= 1 if argument.mandatory?

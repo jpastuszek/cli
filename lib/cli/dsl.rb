@@ -83,6 +83,33 @@ class CLI
 			def to_s
 				name.to_s.tr('_', '-')
 			end
+
+			def multiple?
+				false
+			end
+		end
+
+		class Arguments < Argument
+			def cast(values)
+				out = []
+				values.each do |v|
+					out << super(v)
+				end
+				out
+			end
+
+			def default
+				value = @options[:default]
+				if value.is_a? Array
+					value.map{|v| v.to_s}
+				else
+					value.to_s
+				end
+			end
+
+			def multiple?
+				true
+			end
 		end
 
 		class Switch < DSL::Base
