@@ -198,6 +198,11 @@ class CLI
 			end
 		end
 
+		# initialize multi options
+		@options.multiple.each do |o|
+			values.value(o, [])
+		end
+
 		# set defaults
 		@options.defaults.each do |o|
 			values.value(o, o.cast(o.default))

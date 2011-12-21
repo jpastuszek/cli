@@ -8,5 +8,9 @@ class CLI::Options < CLI::Switches
 	def mandatory
 		select{|o| o.mandatory?}
 	end
+
+	def multiple
+		select{|a| a.multiple?}
+	end
 end
 

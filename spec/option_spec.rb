@@ -87,6 +87,13 @@ describe CLI do
 			ps.gold.should be_nil
 		end
 
+		it "not given option that can be specified multiple times should be an empty array" do
+			ps = CLI.new do
+				options :size, :cast => Integer
+			end.parse([])
+			ps.size.should == []
+		end
+
 		it "should handle multiple long and short intermixed options" do
 			ps = CLI.new do
 				option :location, :short => :l
