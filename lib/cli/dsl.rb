@@ -100,11 +100,7 @@ class CLI
 
 			def default
 				value = @options[:default]
-				if value.is_a? Array
-					value.map{|v| v.to_s}
-				else
-					value.to_s
-				end
+				value.is_a?(Array) ? value.map{|v| v.to_s} : [value.to_s]
 			end
 
 			def multiple?

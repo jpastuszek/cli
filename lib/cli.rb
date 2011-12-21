@@ -210,23 +210,23 @@ class CLI
 
 		# process arguments
 		arguments = @arguments.dup
-		mandatory_arguments_left = @arguments.mandatory.length
-
 		while argument = arguments.shift
-			value = if argv.length == mandatory_arguments_left and not argument.mandatory?
-				argument.default # use defaults for optional arguments
+			value = if arguments.mandatory.length >= argv.length and argument.has_default?
+				argument.default
 			else
-				argv.shift or raise ParsingError::MandatoryArgumentNotSpecifiedError.new(argument)
-			end
+				raise ParsingError::MandatoryArgumentNotSpecifiedError.new(argument) if argv.empty?
+				arg = argv.shift
 
-			if argument.multiple?
-				value = [value] unless value.is_a? Array
-				while argv.length > arguments.length
-					value << argv.shift
+				if argument.multiple?
+					v = [arg]
+					while argv.length > arguments.length
+						v << argv.shift
+					end
+					v
+				else
+					arg
 				end
 			end
-
-			mandatory_arguments_left -= 1 if argument.mandatory?
 
 			values.value(argument, argument.cast(value))
 		end
