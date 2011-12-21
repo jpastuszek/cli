@@ -2,11 +2,13 @@
 
 Command Line Interface gem allows you to quickly specify command argument parser that will automatically handle usage rendering, casting, default values and other stuff for you.
 
-CLI supports specifying:
+CLI supports following specifiers:
 
-* switches - (`--name` or `-n`) binary operators, by default set to nil and when specified set to true
-* options - (`--name John` or `-n John`) switches that take value; default value can be given, otherwise default to nil
-* arguments - (`John`) capture command arguments that are not switches
+* switch - (`--verbose` or `-v`) binary operators, by default set to nil, when specified set to true
+* option - (`--name John` or `-n John`) switches that take value; default value can be specified, otherwise defaults to nil
+* options - (`-n John -n Frank`) like option but can be used multiple times on command line; default value or array of values can be given, otherwise defaults to empty array
+* argument - (`John`) capture single command; default value can be specified; raises error if not given
+* arguments - (`John Frank`) capture multiple command arguments; defaults to empty array
 * stdin - if standard input is to be handled it can be mentioned in usage output; also stdin data casting is supported
 
 Each element can have description that will be visible in the usage output.
