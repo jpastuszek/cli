@@ -66,6 +66,13 @@ class CLI
 			end
 		end
 
+		module MultiDefault
+			def default
+				value = @options[:default]
+				value.is_a?(Array) ? value.map{|v| v.to_s} : [value.to_s]
+			end
+		end
+
 		class Input < DSL::Base
 			include DSL::Cast
 			include DSL::Description
@@ -90,17 +97,14 @@ class CLI
 		end
 
 		class Arguments < Argument
+			include DSL::MultiDefault
+
 			def cast(values)
 				out = []
 				values.each do |v|
 					out << super(v)
 				end
 				out
-			end
-
-			def default
-				value = @options[:default]
-				value.is_a?(Array) ? value.map{|v| v.to_s} : [value.to_s]
 			end
 
 			def multiple?
@@ -146,6 +150,18 @@ class CLI
 
 			def mandatory?
 				not has_default? and @options[:required]
+			end
+
+			def multiple?
+				false
+			end
+		end
+
+		class Options < Option
+			include DSL::MultiDefault
+
+			def multiple?
+				true
 			end
 		end
 	end

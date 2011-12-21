@@ -26,6 +26,14 @@ describe CLI do
 			ps.size.should == 24
 		end
 
+		it "should support casting of multiple options" do
+			ps = CLI.new do
+				options :size, :cast => Integer
+			end.parse(['--size', '24', '--size', '10'])
+			ps.size.should be_a Array
+			ps.size.should == [24, 10]
+		end
+
 		it "should support casting with lambda" do
 			ps = CLI.new do
 				option :size, :cast => lambda{|v| v.to_i + 2}
@@ -94,6 +102,32 @@ describe CLI do
 			ps.not_given.should be_nil
 			ps.size.should == 'XXXL'
 			ps.gold.should be_nil
+		end
+
+		it "should support options that can be specified multiple times" do
+			ps = CLI.new do
+				options :power_up, :short => :p
+			end.parse(['--power-up', 'fire'])
+			ps.power_up.should == ['fire']
+
+			ps = CLI.new do
+				options :power_up, :short => :p
+			end.parse(['--power-up', 'fire', '-p', 'water', '--power-up', 'air', '-p', 'ground'])
+			ps.power_up.should == ['fire', 'water', 'air', 'ground']
+		end
+
+		it "should support options that can be specified multiple times can have single default" do
+			ps = CLI.new do
+				options :power_up, :short => :p, :default => 'fire'
+			end.parse([])
+			ps.power_up.should == ['fire']
+		end
+
+		it "should support options that can be specified multiple times can have multiple defaults" do
+			ps = CLI.new do
+				options :power_up, :short => :p, :default => ['fire', 'air']
+			end.parse([])
+			ps.power_up.should == ['fire', 'air']
 		end
 
 		it "should raise error if not symbol and optional hash is passed" do

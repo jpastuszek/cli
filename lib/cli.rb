@@ -94,6 +94,12 @@ class CLI
 			send((argument.name.to_s + '=').to_sym, value) 
 		end
 
+		def append(argument, value)
+			v = (send(argument.name.to_s) or [])
+			v << value
+			send((argument.name.to_s + '=').to_sym, v) 
+		end
+
 		def set(argument)
 			value(argument, true)
 		end
@@ -162,6 +168,17 @@ class CLI
 		@options << option_dsl
 	end
 
+	def options(name, options = {})
+		option_dsl = DSL::Options.new(name, options)
+
+		raise ParserError::LongNameSpecifiedTwiceError.new('option', option_dsl) if @options.has_long?(option_dsl) 
+		raise ParserError::LongNameSpecifiedTwiceError.new('switch and option', option_dsl) if @switches.has_long?(option_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('option', option_dsl) if @options.has_short?(option_dsl) 
+		raise ParserError::ShortNameSpecifiedTwiceError.new('switch and option', option_dsl) if @switches.has_short?(option_dsl) 
+
+		@options << option_dsl
+	end
+
 	def parse(_argv = ARGV, stdin = STDIN, stderr = STDERR)
 		values = Values.new
 		argv = _argv.dup
@@ -196,7 +213,11 @@ class CLI
 				values.set(switch)
 			elsif option = @options.find(arg)
 				value = argv.shift or raise ParsingError::MissingOptionValueError.new(option)
-				values.value(option, option.cast(value))
+				if option.multiple?
+					values.append(option, option.cast(value))
+				else
+					values.value(option, option.cast(value))
+				end
 				mandatory_options.delete(option)
 			else
 				raise ParsingError::UnknownSwitchError.new(arg) unless switch
