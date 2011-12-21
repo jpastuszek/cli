@@ -261,7 +261,7 @@ describe CLI do
 				switch :run
 				option :location, :short => :r, :description => "place where server is located"
 				option :group, :default => 'red'
-				option :power_up, :short => :p
+				options :power_up, :short => :p
 				option :speed, :short => :s, :cast => Integer
 				option :the_number_of_the_beast, :short => :b, :cast => Integer, :default => 666, :description => "The number of the beast"
 				option :size
@@ -289,7 +289,7 @@ Switches:
 Options:
    --location (-r) - place where server is located
    --group [red]
-   --power-up (-p)
+   --power-up* (-p)
    --speed (-s)
    --the-number-of-the-beast (-b) [666] - The number of the beast
    --size

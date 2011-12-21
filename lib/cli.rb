@@ -312,8 +312,11 @@ class CLI
 		unless @options.empty?
 			out.puts "Options:"
 			@options.each do |o|
-				out.print '   '
-				out.print o.switch
+				unless o.multiple?
+					out.print "   #{o.switch}"
+				else
+					out.print "   #{o.switch}*"
+				end
 				out.print " (#{o.switch_short})" if o.has_short?
 				out.print " [%s]" % o.default if o.has_default?
 				out.print " - #{o.description}" if o.description?
