@@ -142,22 +142,27 @@ The `options` variable will contain:
 The `arguments` specifier matched value will always be an array of casted elements.
 Default and mandatory arguments will have priority on matching values (see specs for examples).
 
+`options` specifier can be used to allow specifing same option multiple times.
+The `options` specifier matched value will always be an array of casted elements or empty if option not specified.
+
 ```ruby
 require 'cli'
 require 'pathname'
 
-options = CLI.new do
+values = CLI.new do
 	description 'Lists content of directories'
 	switch :long, :short => :l, :description => 'use long listing'
+	options :exclude, :short => :e, :description => 'exclude files from listing'
 	arguments :directories, :cast => Pathname, :default => '.', :description => 'directories to list content of'
 end.parse!
 
-options.directories.each do |dir|
+values.directories.each do |dir|
 	next unless dir.directory?
 	dir.each_entry do |e|
 		next if e.to_s == '.' or e.to_s == '..'
 		e = dir + e
-		if options.long
+		next if values.exclude.include? e.to_s
+		if values.long
 			puts "#{e.stat.uid}:#{e.stat.gid} #{e}"
 		else
 			puts e
@@ -168,11 +173,13 @@ end
 
 Example help message:
 
-    Usage: ls [switches] [--] directories*
+    Usage: ls [switches|options] [--] directories*
     Lists content of directories
     Switches:
        --long (-l) - use long listing
        --help (-h) - display this help message
+    Options:
+       --exclude* (-e) - exclude files from listing
     Arguments:
        directories* [.] - directories to list content of
 
@@ -185,6 +192,20 @@ Prints:
     .document
     .git
     .gitignore
+    .README.md.swp
+    .rspec
+    cli.gemspec
+    examples
+    features
+    ...
+
+Excluding .git and .gitignore:
+
+    examples/ls -e .git -e .gitignore
+
+Prints:
+
+    .document
     .README.md.swp
     .rspec
     cli.gemspec
