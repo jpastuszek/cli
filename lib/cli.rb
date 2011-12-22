@@ -148,34 +148,19 @@ class CLI
 
 	def switch(name, options = {})
 		switch_dsl = DSL::Switch.new(name, options)
-
-		raise ParserError::LongNameSpecifiedTwiceError.new('switch', switch_dsl) if @switches.has_long?(switch_dsl) 
-		raise ParserError::LongNameSpecifiedTwiceError.new('option and switch', switch_dsl) if @options.has_long?(switch_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('switch', switch_dsl) if @switches.has_short?(switch_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('option and switch', switch_dsl) if @options.has_short?(switch_dsl) 
-
+		check_switch_collision!(switch_dsl)
 		@switches << switch_dsl
 	end
 
 	def option(name, options = {})
 		option_dsl = DSL::Option.new(name, options)
-
-		raise ParserError::LongNameSpecifiedTwiceError.new('option', option_dsl) if @options.has_long?(option_dsl) 
-		raise ParserError::LongNameSpecifiedTwiceError.new('switch and option', option_dsl) if @switches.has_long?(option_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('option', option_dsl) if @options.has_short?(option_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('switch and option', option_dsl) if @switches.has_short?(option_dsl) 
-
+		check_switch_collision!(option_dsl)
 		@options << option_dsl
 	end
 
 	def options(name, options = {})
 		option_dsl = DSL::Options.new(name, options)
-
-		raise ParserError::LongNameSpecifiedTwiceError.new('option', option_dsl) if @options.has_long?(option_dsl) 
-		raise ParserError::LongNameSpecifiedTwiceError.new('switch and option', option_dsl) if @switches.has_long?(option_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('option', option_dsl) if @options.has_short?(option_dsl) 
-		raise ParserError::ShortNameSpecifiedTwiceError.new('switch and option', option_dsl) if @switches.has_short?(option_dsl) 
-
+		check_switch_collision!(option_dsl)
 		@options << option_dsl
 	end
 
@@ -352,6 +337,21 @@ class CLI
 		msg = "Error: #{msg}" if msg
 		io.write usage(msg)
 		exit 42
+	end
+
+	private
+
+	def check_switch_collision!(switch_dsl)
+		type = switch_dsl.class.name.downcase.sub(/.*::/, '')
+		{
+			'switch' => @switches, 
+			'option' => @options
+		}.each_pair do |collection_type, collection|
+			what = (type == collection_type ? type : collection_type + ' and ' + type)
+
+			raise ParserError::LongNameSpecifiedTwiceError.new(what, switch_dsl) if collection.has_long?(switch_dsl) 
+			raise ParserError::ShortNameSpecifiedTwiceError.new(what, switch_dsl) if collection.has_short?(switch_dsl) 
+		end
 	end
 end
 
