@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "cli"
-  s.version = "0.3.0"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2011-12-21"
+  s.date = "2011-12-30"
   s.description = "Provides DSL for command-line options, switches and arguments parser and stdin handling with generated usage printer"
   s.email = "jpastuszek@gmail.com"
   s.extra_rdoc_files = [
