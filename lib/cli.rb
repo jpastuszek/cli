@@ -181,7 +181,7 @@ class CLI
 			end
 
 			if @version and arg == '--version' 
-				values.version = "#{name} version \"#{@version}\"\n"
+				values.version = "#{CLI.name} version \"#{@version}\"\n"
 				return values
 			end
 		end
@@ -285,14 +285,14 @@ class CLI
 		end
 	end
 
-	def name
+	def self.name
 		File.basename $0
 	end
 
 	def usage(msg = nil)
 		out = StringIO.new
 		out.puts msg if msg
-		out.print "Usage: #{name}"
+		out.print "Usage: #{CLI.name}"
 		out.print ' [switches|options]' if not @switches.empty? and not @options.empty?
 		out.print ' [switches]' if not @switches.empty? and @options.empty?
 		out.print ' [options]' if @switches.empty? and not @options.empty?

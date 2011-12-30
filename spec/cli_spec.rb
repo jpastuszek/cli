@@ -28,6 +28,10 @@ describe CLI do
 		ps.debug.should be_true
 	end
 
+	it "provides name method that provides current program name" do
+		CLI.name.should == 'rspec'
+	end
+
 	describe "parse!" do
 		it "should return value structure with all the values on successful parsing" do
 			ps = CLI.new do
