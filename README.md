@@ -103,9 +103,9 @@ require 'yaml'
 
 options = CLI.new do
 	description 'Generate blog posts in given Jekyll directory from input statistics'
-	stdin :log_data,                :cast => YAML, :description => 'statistic data in YAML format'
-	option :location,               :short => :l, :description => 'location name (ex. Dublin, Singapore, Califorina)'
-	option :csv_dir,                :short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be storred (relative to jekyll-dir)'
+	stdin :log_data,        :cast => YAML, :description => 'statistic data in YAML format'
+	option :location,       :short => :l, :description => 'location name (ex. Dublin, Singapore, Califorina)'
+	option :csv_dir,        :short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be storred (relative to jekyll-dir)'
 	argument :jekyll_dir,   :cast => Pathname, :default => '/var/lib/vhs/jekyll', :description => 'directory where site source is located'
 end.parse! do |values|
 	fail 'jekyll-dir is not a directory' unless values.jekyll_dir.directory?
