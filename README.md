@@ -136,7 +136,7 @@ With this example usage:
 
 The `options` variable will contain:
 
-    #<CLI::Values location="Singapore", stdin={:parser=>{:failures=>0, :successes=>41}}, jekyll_dir=#<Pathname:/var/lib/vhs/jekyll>, csv_dir=#<Pathname:csv>>
+    #<CLI::Values stdin={:parser=>{:successes=>41, :failures=>0}}, jekyll_dir=#<Pathname:/var/lib/vhs/jekyll>, csv_dir=#<Pathname:csv>, help=nil, location="Singapore">
 
 ### Ls like utility
 
