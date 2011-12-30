@@ -54,6 +54,34 @@ describe CLI do
 			h[:debug].should be_nil
 		end
 
+		it "should take a block that can be used to verify passed values" do
+			lambda {
+				ps = CLI.new do
+					option :location, :short => :l
+					switch :debug
+					switch :verbose
+					argument :code
+				end.parse!(['-l', 'singapore', '--debug', 'hello']) do |values|
+					fail '--debug can not be used with --verbose' if values.debug and values.verbose
+				end
+			}.should_not raise_error
+
+			out = stderr_read do
+				lambda {
+					ps = CLI.new do
+						option :location, :short => :l
+						switch :debug
+						switch :verbose
+						argument :code
+					end.parse!(['-l', 'singapore', '--debug', '--verbose', 'hello']) do |values|
+						fail '--debug can not be used with --verbose' if values.debug and values.verbose
+					end
+					}.should raise_error SystemExit
+				end
+				out.should include('Error: --debug can not be used with --verbose')
+				out.should include('Usage:')
+		end
+
 		it "should exit displaying usage and error message on standard error on usage error" do
 				out = stderr_read do
 					lambda {

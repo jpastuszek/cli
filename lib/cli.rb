@@ -87,6 +87,9 @@ class CLI
 				super("failed to cast: '#{arg}' to type: #{cast_name}: #{error}")
 			end
 		end
+
+		class UsageError < ParsingError
+		end
 	end
 
 	class Values < OpenStruct
@@ -267,6 +270,14 @@ class CLI
 			if pp.version
 				stdout.write pp.version
 				exit 0
+			end
+
+			if block_given?
+				begin
+					yield pp
+				rescue RuntimeError => e
+					raise ParsingError::UsageError, e.message
+				end
 			end
 			pp
 		rescue ParsingError => pe
