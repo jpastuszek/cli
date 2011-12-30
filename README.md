@@ -103,11 +103,16 @@ require 'yaml'
 
 options = CLI.new do
 	description 'Generate blog posts in given Jekyll directory from input statistics'
-	stdin :log_data,		:cast => YAML, :description => 'statistic data in YAML format'
-	option :location,		:short => :l, :description => 'location name (ex. Dublin, Singapore, Califorina)'
-	option :csv_dir,		:short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be storred (relative to jekyll-dir)'
-	argument :jekyll_dir,	:cast => Pathname, :default => '/var/lib/vhs/jekyll', :description => 'directory where site source is located'
-end.parse!
+	stdin :log_data,                :cast => YAML, :description => 'statistic data in YAML format'
+	option :location,               :short => :l, :description => 'location name (ex. Dublin, Singapore, Califorina)'
+	option :csv_dir,                :short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be storred (relative to jekyll-dir)'
+	argument :jekyll_dir,   :cast => Pathname, :default => '/var/lib/vhs/jekyll', :description => 'directory where site source is located'
+end.parse! do |values|
+	fail 'jekyll-dir is not a directory' unless values.jekyll_dir.directory?
+	fail '--csv-dir is not a directory (relative to jekyll-dir)' unless (values.jekyll_dir + values.csv_dir).directory?
+end
+
+p options
 
 # do your stuff
 ```
@@ -126,7 +131,7 @@ Example help message:
     Arguments:
        jekyll-dir - directory where site source is located
 
-With this example usage:
+With this example usage (assuming /var/lib/vhs/jekyll/csv dir exist):
 
     examples/processor --location Singapore <<EOF
     :parser: 
@@ -137,6 +142,21 @@ With this example usage:
 The `options` variable will contain:
 
     #<CLI::Values stdin={:parser=>{:successes=>41, :failures=>0}}, jekyll_dir=#<Pathname:/var/lib/vhs/jekyll>, csv_dir=#<Pathname:csv>, help=nil, location="Singapore">
+
+Output if jekyll-dir does not exist:
+
+    Error: jekyll-dir is not a directory
+    Usage: processor [switches|options] [--] jekyll-dir < log-data
+    Generate blog posts in given Jekyll directory from input statistics
+    Input:
+       log-data - statistic data in YAML format
+    Switches:
+       --help (-h) - display this help message
+    Options:
+       --location (-l) - location name (ex. Dublin, Singapore, Califorina)
+       --csv-dir (-c) [csv] - directory name where CSV file will be storred (relative to jekyll-dir)
+    Arguments:
+       jekyll-dir [/var/lib/vhs/jekyll] - directory where site source is located
 
 ### Ls like utility
 

@@ -9,7 +9,10 @@ options = CLI.new do
 	option :location,		:short => :l, :description => 'location name (ex. Dublin, Singapore, Califorina)'
 	option :csv_dir,		:short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be storred (relative to jekyll-dir)'
 	argument :jekyll_dir,	:cast => Pathname, :default => '/var/lib/vhs/jekyll', :description => 'directory where site source is located'
-end.parse!
+end.parse! do |values|
+	fail 'jekyll-dir is not a directory' unless values.jekyll_dir.directory?
+	fail '--csv-dir is not a directory (relative to jekyll-dir)' unless (values.jekyll_dir + values.csv_dir).directory?
+end
 
 p options
 
