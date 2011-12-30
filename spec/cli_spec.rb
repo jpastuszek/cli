@@ -41,6 +41,19 @@ describe CLI do
 			ps.code.should == 'hello'
 		end
 
+		it "should return value structure where all values are set" do
+			h = CLI.new do
+				option :location, :short => :l
+				switch :debug
+			end.parse!([]).marshal_dump
+
+			h.member?(:location).should be_true
+			h[:location].should be_nil
+
+			h.member?(:debug).should be_true
+			h[:debug].should be_nil
+		end
+
 		it "should exit displaying usage and error message on standard error on usage error" do
 				out = stderr_read do
 					lambda {

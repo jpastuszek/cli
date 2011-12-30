@@ -183,6 +183,15 @@ class CLI
 			end
 		end
 
+		# initialize values
+		@options.each do |o|
+			values.value(o, nil)
+		end
+
+		@switches.each do |o|
+			values.value(o, nil)
+		end
+
 		# initialize multi options
 		@options.multiple.each do |o|
 			values.value(o, [])
