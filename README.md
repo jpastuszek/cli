@@ -2,18 +2,89 @@
 
 Command Line Interface gem allows you to quickly specify command argument parser that will automatically handle usage rendering, casting, default values and other stuff for you.
 
-CLI supports following specifiers:
+## DSL 
 
-* switch - (`--verbose` or `-v`) binary operators, by default set to nil, when specified set to true
-* option - (`--name John` or `-n John`) switches that take value; default value can be specified, otherwise defaults to nil
-* options - (`-n John -n Frank`) like option but can be used multiple times on command line; default value or array of values can be given, otherwise defaults to empty array
-* argument - (`John`) capture single command; default value can be specified; raises error if not given
-* arguments - (`John Frank`) capture multiple command arguments; defaults to empty array
-* stdin - if standard input is to be handled it can be mentioned in usage output; also stdin data casting is supported
+`CLI.new` takes a block where you specify parser behavior. The returned object is a parser that has `parse` and `parse!` methods.
 
-Each element can have description that will be visible in the usage output.
+### `#parse` method
 
-See examples and specs for more info.
+It will take argument array (defaults to ARGV), standard input IO (defaults to STDIO) and standard error IO (defaults to STDERR).
+
+The method will parse argument array and cast standard input IO according to parser specification and return OpenStruct kind of object with resulting values.
+
+The returned object will have `help` attribute set if `--help` or `-h` switch was found in argument array or `version` attribute if `--version` argument was found. 
+In other case all the attributes will be set to appropriate values depending on argument array and parser specification.
+In case of parsing error `CLI::ParsingError` kind of exception will be raised.
+
+### `#parse!` method
+
+This is higher level version of `#parse` method that will exit the program and print out usage if there was parsing error. Also it will display usage on `--help` or `-h` switch and version string on `--version` switch found in argument array.
+
+In other case it will return OpenStruct object from `#parse` method.
+
+Additionally this method can be called with a block that will get the OpenStruct like object before returning it. This block should contain additional value verifications and if it raises RuntimeError (via `fail` method for instance) the error message will be displayed followed by usage and the program will exit.
+
+### Parser behavior specifiers
+
+#### `description 'string'`
+Followed by string that will be displayed in usage output as your program short description.
+
+#### `version 'string'`
+Followed by string representing program version that will be displayed when `--version` switch is used
+
+#### `switch :name [, options hash]`
+
+When switch is specified in the command argument list the object returned by `#parse` or `#parse!` will contain argument of same name set to `true`. Otherwise the argument value will be `nil`.
+
+*:name* should be a symbol that will map to long switch (`--name`) where underscore (`_`) will be replaced with minus (`-`). Name has to be unique.
+
+Option hash can contain following pairs:
+
+* **:short => :symbol** - where *:symbol* is a single letter symbol that will represent short switch name (`-n`). Short name has to be unique.
+* **:description => 'string'** - switch description string that will be displayed in the usage output
+
+#### `option :name [, options hash]`
+
+Same as *switch* but additionally it has to be followed by a value on the command argument list.
+The value after casting (if used) will be available from the `#parse` or `#parse!` returned object as argument of the same name.
+
+In addition to *switch*, option hash can have following pairs:
+
+* **:default => value** - use default value of *value* if the option was not specified on the command argument list. The *value* will firstly be casted to string (with `#to_s`) and then it will be casted if casting is specified.
+* **:cast => cast specifier** - cast the provided value (or default) with given *cast specifier*. 
+The specifier can be a class constant (like `Integer` or `Float`); the value will be provided to `#new` method of the class and resulting object used as option value. When provided constant does not respond to `#new` (i.e. it is a module) the `#load` method will be tried. If provided specifier is a Proc (or `lambda {}`) the Proc will be called with the value and resulting value will be used. Otherwise `CLI::ParsingError::CastError` will be raised.
+* **:required => true** - if used and no *default* value is specified the `#parse` method will fail with `CLI::ParsingError::MissingOptionValueError` if the option was not specified in the command argument list. If `#parse!` method was used the program will exit with appropriate message.
+
+#### `options :name [, options hash]`
+
+Same as *option* but can be specified multiple times in the command argument list.
+The resulting `#parse` or `#parse!` returned object will contain an argument with the same name that will always be an array.
+The array may be empty if the option was not used and *required* option was not set, otherwise it will contain casted values in order of specification in the command argument list.
+
+#### `argument :name [,options hash]`
+
+After the parser encounters command line argument that is not a *switch* or *option* or it is literally `--` string it will start matching arguments.
+
+Each argument will be matched to argument specifications in order and their value after optional casting will be available as `#parse` or `#parse!` returned object argument with the same name.
+
+Options hash can contain the same pairs as *option* expect of **:short => :symbol** and **:required => true** pair. 
+
+If defaults are used the parser will keep using default values until it has enough command line arguments available to fill all mandatory arguments.
+Arguments are required by default, use **:default => nil** option pair to use `nil` value if argument is not specified on the command line argument list.
+
+#### `arguments :name [,options hash]`
+
+Same as *argument* but will match one or more arguments and provide them in array of casted values.
+
+When used with *argument* specifiers that use default values the parser will try to assign at least one value to this specifier, but not more values so that all mandatory (that have no default) arguments will be assigned.
+
+#### `stdin :name, [options hash]`
+
+Used once to specify that stdin should be handled.
+When used the `#parse` or `#parse!` returned object will have `stdin` argument that by default will contain stdin IO object.
+
+As with *switch* specifier the **:description => 'string'** can be used.
+Also **:cast => cast specifier** option pair can be used but the value will be an IO object and not string.
 
 ## Installing
 
