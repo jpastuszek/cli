@@ -234,10 +234,15 @@ class CLI
 		# process arguments
 		arguments = @arguments.dup
 		while argument = arguments.shift
-			value = if arguments.mandatory.length >= argv.length and argument.has_default?
-				argument.default
+			value = if arguments.mandatory.length >= argv.length
+				if argument.has_default?
+					argument.default
+				elsif not argument.mandatory?
+					argument.multiple? ? [] : nil
+				else
+					raise ParsingError::MandatoryArgumentNotSpecifiedError.new(argument) if argv.empty?
+				end
 			else
-				raise ParsingError::MandatoryArgumentNotSpecifiedError.new(argument) if argv.empty?
 				arg = argv.shift
 
 				if argument.multiple?

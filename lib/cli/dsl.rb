@@ -62,7 +62,7 @@ class CLI
 			end
 
 			def mandatory?
-				not has_default?
+				not has_default? and @options[:required]
 			end
 		end
 
@@ -86,6 +86,11 @@ class CLI
 			include DSL::Value
 			include DSL::Cast
 			include DSL::Description
+
+			def initialize(name, options = {})
+				super
+				@options[:required] = true unless @options.member?(:required)
+			end
 
 			def to_s
 				name.to_s.tr('_', '-')
@@ -147,10 +152,6 @@ class CLI
 		class Option < Switch
 			include DSL::Value
 			include DSL::Cast
-
-			def mandatory?
-				not has_default? and @options[:required]
-			end
 
 			def multiple?
 				false

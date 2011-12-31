@@ -150,6 +150,16 @@ describe CLI do
 			}.should raise_error CLI::ParserError::MultipleArgumentsSpecifierError, "only one 'arguments' specifier can be used, got: test1, test3"
 		end
 
+		it "should not require non mandatory argument" do
+			ps = CLI.new do
+				argument :log, :cast => Pathname
+				argument :test, :required => false
+			end.parse(['/tmp'])
+			ps.log.should be_a Pathname
+			ps.log.to_s.should == '/tmp'
+			ps.test.should be_nil
+		end
+
 		describe "with defaults" do
 			it "when not enought arguments given it should fill required arguments only with defaults" do
 				ps = CLI.new do
@@ -178,6 +188,19 @@ describe CLI do
 				end.parse(['/tmp', 'hello'])
 				ps.log.to_s.should == '/tmp'
 				ps.magick.should == 'word'
+				ps.test.should == 'hello'
+				ps.code.should == 123
+
+				ps = CLI.new do
+					argument :log, :cast => Pathname
+					argument :magick, :default => 'word'
+					argument :test0, :required => false
+					argument :test
+					argument :code, :cast => Integer, :default => '123'
+				end.parse(['/tmp', 'hello'])
+				ps.log.to_s.should == '/tmp'
+				ps.magick.should == 'word'
+				ps.test0.should be_nil
 				ps.test.should == 'hello'
 				ps.code.should == 123
 			end
@@ -245,6 +268,24 @@ describe CLI do
 				ps.magick.should == 'word'
 				ps.test.should == 'test'
 				ps.words.should == ['hello', 'world', 'abc']
+				ps.test2.should == 'test2'
+				ps.code.should == 123
+			end
+
+			it "should use empty array of values for multiple arguments argument when not enought arguments given" do
+				ps = CLI.new do
+					argument :log, :cast => Pathname
+					argument :magick, :default => 'word'
+					argument :test
+					arguments :words, :required => false
+					argument :test2
+					argument :code, :cast => Integer, :default => '123'
+				end.parse(['/tmp', 'test', 'test2'])
+
+				ps.log.to_s.should == '/tmp'
+				ps.magick.should == 'word'
+				ps.test.should == 'test'
+				ps.words.should == []
 				ps.test2.should == 'test2'
 				ps.code.should == 123
 			end
