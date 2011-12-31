@@ -285,10 +285,10 @@ Additionally this method can be called with a block that will get the OpenStruct
 ### Parser behavior specifiers
 
 #### description 'string'
-Followed by string that will be displayed in usage output as your program short description.
+The *string* will be displayed in usage output as your program short description.
 
 #### version 'string'
-Followed by string representing program version that will be displayed when `--version` switch is used
+The *string* representing program version that will be displayed when `--version` switch is used
 
 #### switch :name [, options hash]
 
