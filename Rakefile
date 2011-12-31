@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "cli"
   gem.homepage = "http://github.com/jpastuszek/cli"
   gem.license = "MIT"
-  gem.summary = %Q{Helps writing Command-line interface program}
-  gem.description = %Q{Provides DSL for command-line options, switches and arguments parser and stdin handling with generated usage printer}
+  gem.summary = %Q{Command line argument parser with stdin handling and usage generator}
+  gem.description = %Q{Command Line Interface gem allows you to quickly specify command argument parser that will automatically generate usage, handle stdin, switches, options and arguments with default values and value casting}
   gem.email = "jpastuszek@gmail.com"
   gem.authors = ["Jakub Pastuszek"]
   # dependencies defined in Gemfile

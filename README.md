@@ -1,6 +1,6 @@
 # CLI
 
-Command Line Interface gem allows you to quickly specify command argument parser that will automatically handle usage rendering, casting, default values and other stuff for you.
+Command Line Interface gem allows you to quickly specify command argument parser that will automatically generate usage, handle stdin, switches, options and arguments with default values and value casting.
 
 ## Installing
 
