@@ -328,13 +328,14 @@ Each argument will be matched to argument specifications in order and their valu
 Options hash can contain the same pairs as *option* expect of **:short => :symbol** and **:required => true** pair. 
 
 If defaults are used the parser will keep using default values until it has enough command line arguments available to fill all mandatory arguments.
-Arguments are required by default, use **:default => nil** option pair to use `nil` value if argument is not specified on the command line argument list.
+Arguments are required by default, use **:required => false** option pair to use `nil` value if argument is not specified on the command line argument list.
 
 #### arguments :name [,options hash]
 
 Same as *argument* but will match one or more arguments and provide them in array of casted values.
+If argument is not required and not specified in command argument list then its value will be an empty array.
 
-When used with *argument* specifiers that use default values the parser will try to assign at least one value to this specifier, but not more values so that all mandatory (that have no default) arguments will be assigned.
+When used with *argument* specifiers that use default values the parser will try to assign at least one value to this specifier, but not more values so that all mandatory (that have no default or are not required) arguments will be assigned.
 
 #### stdin :name, [options hash]
 
