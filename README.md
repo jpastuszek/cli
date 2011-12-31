@@ -2,6 +2,10 @@
 
 Command Line Interface gem allows you to quickly specify command argument parser that will automatically handle usage rendering, casting, default values and other stuff for you.
 
+## Installing
+
+    gem install cli
+
 ## Examples
 
 ### Sinatra server example
@@ -256,20 +260,6 @@ Prints:
     501:20 pkg/cli-0.0.2.gem
     ...
     
-## Contributing to CLI
- 
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
-* Fork the project
-* Start a feature/bugfix branch
-* Commit and push until you are happy with your contribution
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
-
-## Installing
-
-    gem install cli
-
 ## Usage
 
 `CLI.new` takes a block where you specify parser behavior. The returned object is a parser that has `#parse` and `#parse!` methods.
@@ -353,6 +343,16 @@ When used the `#parse` or `#parse!` returned object will have `stdin` argument t
 
 As with *switch* specifier the **:description => 'string'** can be used.
 Also **:cast => cast specifier** option pair can be used but the value will be an IO object and not string.
+
+## Contributing to CLI
+ 
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
 ## Copyright
 
