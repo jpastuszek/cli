@@ -335,7 +335,7 @@ Arguments are required by default, use **:required => false** option pair to use
 Same as *argument* but will match one or more arguments and provide them in array of casted values.
 If argument is not required and not specified in command argument list then its value will be an empty array.
 
-When used with *argument* specifiers that use default values the parser will try to assign at least one value to this specifier, but not more values so that all mandatory (that have no default or are not required) arguments will be assigned.
+When used with *argument* specifiers that use default values the parser will try to assign at least one value to this specifier, but not more values so that all mandatory (that have no default and are required) arguments will be assigned.
 
 #### stdin :name, [options hash]
 
