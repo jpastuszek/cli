@@ -325,7 +325,7 @@ After the parser encounters command line argument that is not a *switch* or *opt
 
 Each argument will be matched to argument specifications in order and their value after optional casting will be available as `#parse` or `#parse!` returned object argument with the same name.
 
-Options hash can contain the same pairs as *option* expect of **:short => :symbol** and **:required => true** pair. 
+Options hash can contain the same pairs as *option* expect of **:short => :symbol**. 
 
 If defaults are used the parser will keep using default values until it has enough command line arguments available to fill all mandatory arguments.
 Arguments are required by default, use **:required => false** option pair to use `nil` value if argument is not specified on the command line argument list.
