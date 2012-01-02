@@ -289,7 +289,7 @@ describe CLI do
 				switch :run
 				option :location, :short => :r, :description => "place where server is located"
 				option :group, :default => 'red'
-				options :power_up, :short => :p
+				options :power_up, :short => :p, :required => true
 				option :speed, :short => :s, :cast => Integer
 				option :the_number_of_the_beast, :short => :b, :cast => Integer, :default => 666, :description => "The number of the beast"
 				option :size
@@ -304,7 +304,7 @@ describe CLI do
 			end.usage
 
 			u.should == <<EOS
-Usage: rspec [switches|options] [--] log magick string number code illegal-prime files* < log-data
+Usage: rspec [switches|options] --power-up <value> [--] log magick string number code illegal-prime files* < log-data
 Log file processor
 Input:
    log-data - YAML formatted log data
