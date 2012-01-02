@@ -1,4 +1,5 @@
-#!/usr/bin/ruby -rrubygems
+#!/usr/bin/ruby
+require 'rubygems'
 require 'cli'
 require 'pathname'
 require 'yaml'
