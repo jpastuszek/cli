@@ -245,6 +245,18 @@ describe CLI do
 
 				ss.usage.first.should == "Usage: rspec [switches] --size <value>\n"
 			end
+
+			it "should suggest that argument is optional" do
+				ss = CLI.new do
+					argument :location
+					argument :size, :required => false
+					argument :colour, :default => 'red'
+					argument :group
+				end
+
+				# switches will always be there due to implicit --help switch
+				ss.usage.first.should == "Usage: rspec [switches] [--] location [size] [colour] group\n"
+			end
 		end
 
 		it "should allow describing whole script" do
@@ -279,7 +291,7 @@ describe CLI do
 			u.should include("log data to process")
 		end
 
-		it "should provide formated usage with optional message" do
+		it "should provide formated usage" do
 			u = CLI.new do
 				description 'Log file processor'
 				version '1.0'
@@ -297,14 +309,15 @@ describe CLI do
 				argument :log, :cast => Pathname, :description => "log file to process"
 				argument :magick, :default => 'word'
 				argument :string
-				argument :number, :cast => Integer
+				argument :limit, :cast => Integer, :required => false, :description => "limit in seconds"
+				argument :unlock_code, :cast => Integer, :required => false
 				argument :code, :cast => Integer, :default => '123', :description => "secret code"
 				argument :illegal_prime, :cast => Integer, :description => "prime number that represents information that it is forbidden to possess or distribute"
 				arguments :files, :cast => Pathname, :default => ['test', '1', '2'], :description => "files to process"
 			end.usage
 
 			u.should == <<EOS
-Usage: rspec [switches|options] --power-up <value> [--] log magick string number code illegal-prime files* < log-data
+Usage: rspec [switches|options] --power-up <value> [--] log [magick] string [limit] [unlock-code] [code] illegal-prime [files*] < log-data
 Log file processor
 Input:
    log-data - YAML formatted log data
@@ -317,12 +330,16 @@ Switches:
 Options:
    --location (-r) - place where server is located
    --group [red]
-   --power-up* (-p)
+   --power-up* (-p) (mandatory)
    --speed (-s)
    --the-number-of-the-beast (-b) [666] - The number of the beast
    --size
 Arguments:
    log - log file to process
+   magick [word]
+   string
+   limit (optional) - limit in seconds
+   unlock-code (optional)
    code [123] - secret code
    illegal-prime - prime number that represents information that it is forbidden to possess or distribute
    files* [test 1 2] - files to process

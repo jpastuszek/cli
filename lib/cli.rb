@@ -305,7 +305,14 @@ class CLI
 			out.print " #{o.switch} <value>"
 		end
 		out.print ' [--]' if not @arguments.empty? and (not @switches.empty? or not @options.empty?)
-		out.print ' ' + @arguments.map{|a| a.multiple? ? a.to_s + '*': a.to_s}.join(' ') unless @arguments.empty?
+		out.print ' ' unless @arguments.empty?
+		out.print(@arguments.map do |a|
+			v = ''
+			v += '[' unless a.mandatory?
+			v += a.multiple? ? a.to_s + '*': a.to_s
+			v += ']' unless a.mandatory?
+			v
+		end.join(' '))
 		out.print " < #{@stdin}" if @stdin
 
 		out.puts
@@ -336,23 +343,24 @@ class CLI
 					out.print "   #{o.switch}*"
 				end
 				out.print " (#{o.switch_short})" if o.has_short?
+				out.print ' (mandatory)' if o.mandatory?
 				out.print " [%s]" % o.default if o.has_default?
 				out.print " - #{o.description}" if o.description?
 				out.puts
 			end
 		end
 
-		described_arguments = @arguments.select{|a| a.description?}
-		unless described_arguments.empty?
+		unless @arguments.empty?
 			out.puts "Arguments:"
-			described_arguments.each do |a|
+			@arguments.each do |a|
 				unless a.multiple?
 					out.print "   #{a}"
 				else
 					out.print "   #{a}*"
 				end
+				out.print ' (optional)' if not a.mandatory? and not a.has_default?
 				out.print " [%s]" % (a.default.is_a?(Array) ? a.default.join(' ') : a.default) if a.has_default?
-				out.print " - #{a.description}"
+				out.print " - #{a.description}" if a.description?
 				out.puts
 			end
 		end
