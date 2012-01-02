@@ -150,62 +150,21 @@ describe CLI do
 			}.should raise_error CLI::ParserError::MultipleArgumentsSpecifierError, "only one 'arguments' specifier can be used, got: test1, test3"
 		end
 
-		it "should not require non mandatory argument" do
-			ps = CLI.new do
-				argument :log, :cast => Pathname
-				argument :test, :required => false
-			end.parse(['/tmp'])
-			ps.log.should be_a Pathname
-			ps.log.to_s.should == '/tmp'
-			ps.test.should be_nil
-		end
-
 		describe "with defaults" do
-			it "when not enought arguments given it should fill required arguments only with defaults" do
-				ps = CLI.new do
-					argument :log, :cast => Pathname, :default => '/tmp'
-					argument :test
-				end.parse(['hello'])
-				ps.log.should be_a Pathname
-				ps.log.to_s.should == '/tmp'
-				ps.test.should be_a String
-				ps.test.should == 'hello'
-
-				ps = CLI.new do
-					argument :log, :cast => Pathname
-					argument :test, :default => 'hello'
-				end.parse(['/tmp'])
-				ps.log.should be_a Pathname
-				ps.log.to_s.should == '/tmp'
-				ps.test.should be_a String
-				ps.test.should == 'hello'
-
-				ps = CLI.new do
-					argument :log, :cast => Pathname
-					argument :magick, :default => 'word'
-					argument :test
-					argument :code, :cast => Integer, :default => '123'
-				end.parse(['/tmp', 'hello'])
-				ps.log.to_s.should == '/tmp'
-				ps.magick.should == 'word'
-				ps.test.should == 'hello'
-				ps.code.should == 123
-
-				ps = CLI.new do
-					argument :log, :cast => Pathname
-					argument :magick, :default => 'word'
-					argument :test0, :required => false
-					argument :test
-					argument :code, :cast => Integer, :default => '123'
-				end.parse(['/tmp', 'hello'])
-				ps.log.to_s.should == '/tmp'
-				ps.magick.should == 'word'
-				ps.test0.should be_nil
-				ps.test.should == 'hello'
-				ps.code.should == 123
-			end
-
 			it "should fill defaults form the beginning if more than required arguments are given" do
+				ps = CLI.new do
+					argument :test1, :default => 'x'
+					argument :test2
+					argument :test3, :default => 'c'
+					argument :test4, :default => 'd'
+					argument :test5, :default => 'e'
+				end.parse(['a', 'b'])
+				ps.test1.should == 'a'
+				ps.test2.should == 'b'
+				ps.test3.should == 'c'
+				ps.test4.should == 'd'
+				ps.test5.should == 'e'
+
 				ps = CLI.new do
 					argument :log, :cast => Pathname
 					argument :magick, :default => 'word'
@@ -272,7 +231,56 @@ describe CLI do
 				ps.code.should == 123
 			end
 
-			it "should use empty array of values for multiple arguments argument when not enought arguments given" do
+			it "should fill at least one value of required multiple arguments argument" do
+				ps = CLI.new do
+					argument :test1, :default => 'x'
+					argument :test2, :default => 'b'
+					arguments :test3
+					argument :test4, :default => 'd'
+					argument :test5, :default => 'e'
+				end.parse(['a', 'c'])
+				ps.test1.should == 'a'
+				ps.test2.should == 'b'
+				ps.test3.should == ['c']
+				ps.test4.should == 'd'
+				ps.test5.should == 'e'
+			end
+		end
+
+		describe "not required"  do
+			it "argument that is not required may be nil if there is not enought command arguments" do
+				ps = CLI.new do
+					argument :test1, :required => false
+					argument :test2, :required => false
+					argument :test3, :required => false
+					argument :test4, :required => false
+					argument :test5, :required => false
+				end.parse(['a', 'b'])
+				ps.test1.should == 'a'
+				ps.test2.should == 'b'
+				ps.test3.should be_nil
+				ps.test4.should be_nil
+				ps.test5.should be_nil
+
+				ps = CLI.new do
+					argument :log, :cast => Pathname
+					argument :test, :required => false
+				end.parse(['/tmp'])
+				ps.log.should be_a Pathname
+				ps.log.to_s.should == '/tmp'
+				ps.test.should be_nil
+			end
+
+			it "should use empty array for multiple arguments argument when not enought arguments given and it is not required" do
+				ps = CLI.new do
+					argument :test1, :required => false
+					argument :test2, :required => false
+					arguments :test3, :required => false
+				end.parse(['a', 'b'])
+				ps.test1.should == 'a'
+				ps.test2.should == 'b'
+				ps.test3.should == []
+
 				ps = CLI.new do
 					argument :log, :cast => Pathname
 					argument :magick, :default => 'word'
