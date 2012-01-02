@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "cli"
-  s.version = "1.0.0"
+  s.version = "1.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2011-12-31"
+  s.date = "2012-01-02"
   s.description = "Command Line Interface gem allows you to quickly specify command argument parser that will automatically generate usage, handle stdin, switches, options and arguments with default values and value casting"
   s.email = "jpastuszek@gmail.com"
   s.extra_rdoc_files = [
@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "cli.gemspec",
+    "examples/httpclient",
     "examples/ls",
     "examples/processor",
     "examples/sinatra",
