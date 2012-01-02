@@ -106,7 +106,7 @@ p options
 
 Example help message:
 
-    Usage: processor [switches|options] [--] jekyll-dir < log-data
+    Usage: processor [switches|options] [--] [jekyll-dir] < log-data
     Generate blog posts in given Jekyll directory from input statistics
     Input:
        log-data - statistic data in YAML format
@@ -116,7 +116,7 @@ Example help message:
        --location (-l) - location name (ex. Dublin, Singapore, Califorina)
        --csv-dir (-c) [csv] - directory name where CSV file will be storred (relative to jekyll-dir)
     Arguments:
-       jekyll-dir - directory where site source is located
+       jekyll-dir [/var/lib/vhs/jekyll] - directory where site source is located
 
 With this example usage (assuming /var/lib/vhs/jekyll/csv dir exist):
 
@@ -133,7 +133,7 @@ The `options` variable will contain:
 Output if jekyll-dir does not exist:
 
     Error: jekyll-dir is not a directory
-    Usage: processor [switches|options] [--] jekyll-dir < log-data
+    Usage: processor [switches|options] [--] [jekyll-dir] < log-data
     Generate blog posts in given Jekyll directory from input statistics
     Input:
        log-data - statistic data in YAML format
@@ -182,7 +182,7 @@ end
 
 Example help message:
 
-    Usage: ls [switches|options] [--] directories*
+    Usage: ls [switches|options] [--] [directories*]
     Lists content of directories
     Switches:
        --long (-l) - use long listing
