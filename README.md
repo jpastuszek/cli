@@ -21,8 +21,8 @@ require 'httpclient'
 
 options = CLI.new do
     option :server, :description => 'server address', :default => 'www.google.com'
-    option :port, :description => 'server port', :cast => Integer, :default => 80
-    argument :url, :description => 'URL to GET or POST to if arguments are given'
+    option :port,	:description => 'server port', :cast => Integer, :default => 80
+    argument :url,	:description => 'URL to GET or POST to if arguments are given'
     arguments :post_arguments, :required => false
 end.parse! do |options|
     fail "invalid URL '#{options.url}', URL has to start with '/'" unless options.url =~ /^\//
