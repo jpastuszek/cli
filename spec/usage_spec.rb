@@ -184,39 +184,67 @@ describe CLI do
 			ss.usage.should include("4")
 		end
 
-		it "should suggest that arguments can be used in usage line" do
-			ss = CLI.new do
-				argument :location
+		describe "usage line" do
+			it "should suggest that arguments can be used in usage line" do
+				ss = CLI.new do
+					argument :location
+				end
+
+				# switches will always be there due to implicit --help switch
+				ss.usage.first.should == "Usage: rspec [switches] [--] location\n"
 			end
 
-			# switches will always be there due to implicit --help switch
-			ss.usage.first.should == "Usage: rspec [switches] [--] location\n"
-		end
+			it "should suggest that switches can be used in usage line" do
+				ss = CLI.new do
+					switch :location, :short => :l
+				end
 
-		it "should suggest that switches can be used in usage line" do
-			ss = CLI.new do
-				switch :location, :short => :l
+				ss.usage.first.should == "Usage: rspec [switches]\n"
 			end
 
-			ss.usage.first.should == "Usage: rspec [switches]\n"
-		end
+			it "should suggest that options can be used in usage line" do
+				ss = CLI.new do
+					option :location, :short => :l
+				end
 
-		it "should suggest that options can be used in usage line" do
-			ss = CLI.new do
-				option :location, :short => :l
+				# switches will always be there due to implicit --help switch
+				ss.usage.first.should == "Usage: rspec [switches|options]\n"
 			end
 
-			# switches will always be there due to implicit --help switch
-			ss.usage.first.should == "Usage: rspec [switches|options]\n"
-		end
+			it "should suggest that switches or options can be used in usage line" do
+				ss = CLI.new do
+					switch :location, :short => :l
+					option :size, :short => :s
+				end
 
-		it "should suggest that switches or options can be used in usage line" do
-			ss = CLI.new do
-				switch :location, :short => :l
-				option :size, :short => :s
+				ss.usage.first.should == "Usage: rspec [switches|options]\n"
 			end
 
-			ss.usage.first.should == "Usage: rspec [switches|options]\n"
+			it "should suggest that option is mandatory" do
+				ss = CLI.new do
+					option :size, :required => true
+					option :group, :short => :g, :required => true
+				end
+
+				# switches will always be there due to implicit --help switch
+				ss.usage.first.should == "Usage: rspec [switches] --size <value> --group <value>\n"
+
+				ss = CLI.new do
+					option :location, :short => :l
+					option :size, :required => true
+					option :group, :short => :g, :required => true
+				end
+
+				# switches will always be there due to implicit --help switch
+				ss.usage.first.should == "Usage: rspec [switches|options] --size <value> --group <value>\n"
+
+				ss = CLI.new do
+					switch :location, :short => :l
+					option :size, :short => :s, :required => true
+				end
+
+				ss.usage.first.should == "Usage: rspec [switches] --size <value>\n"
+			end
 		end
 
 		it "should allow describing whole script" do

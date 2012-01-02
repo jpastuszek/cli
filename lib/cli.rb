@@ -234,15 +234,7 @@ class CLI
 		# process arguments
 		arguments = @arguments.dup
 		while argument = arguments.shift
-			value = if arguments.mandatory.length >= argv.length
-				if argument.has_default?
-					argument.default
-				elsif not argument.mandatory?
-					argument.multiple? ? [] : nil
-				else
-					raise ParsingError::MandatoryArgumentNotSpecifiedError.new(argument) if argv.empty?
-				end
-			else
+			value = if arguments.mandatory.length < argv.length
 				arg = argv.shift
 
 				if argument.multiple?
@@ -253,6 +245,14 @@ class CLI
 					v
 				else
 					arg
+				end
+			else
+				if argument.has_default?
+					argument.default
+				elsif not argument.mandatory?
+					argument.multiple? ? [] : nil
+				else
+					raise ParsingError::MandatoryArgumentNotSpecifiedError.new(argument) if argv.empty?
 				end
 			end
 
@@ -298,9 +298,12 @@ class CLI
 		out = StringIO.new
 		out.puts msg if msg
 		out.print "Usage: #{CLI.name}"
-		out.print ' [switches|options]' if not @switches.empty? and not @options.empty?
-		out.print ' [switches]' if not @switches.empty? and @options.empty?
-		out.print ' [options]' if @switches.empty? and not @options.empty?
+		out.print ' [switches|options]' if not @switches.empty? and not @options.optional.empty?
+		out.print ' [switches]' if not @switches.empty? and @options.optional.empty?
+		out.print ' [options]' if @switches.empty? and not @options.optional.empty?
+		@options.mandatory.each do |o|
+			out.print " #{o.switch} <value>"
+		end
 		out.print ' [--]' if not @arguments.empty? and (not @switches.empty? or not @options.empty?)
 		out.print ' ' + @arguments.map{|a| a.multiple? ? a.to_s + '*': a.to_s}.join(' ') unless @arguments.empty?
 		out.print " < #{@stdin}" if @stdin
