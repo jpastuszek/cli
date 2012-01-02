@@ -8,6 +8,83 @@ Command Line Interface gem allows you to quickly specify command argument parser
 
 ## Examples
 
+### HTTPClient example
+
+The following example shows basic usage of the CLI gem.
+It will use HTTPClient to connect to server that address and port can be specified with `--server` and `--port` switches.
+It expects at least one argument specifying the URL (that needs to start with `/`) and optional set of POST arguments.
+
+```ruby
+re 'rubygems'
+require 'cli'
+require 'httpclient'
+
+options = CLI.new do
+    option :server, :description => 'server address', :default => 'www.google.com'
+    option :port, :description => 'server port', :cast => Integer, :default => 80
+    argument :url, :description => 'URL to GET or POST to if arguments are given'
+    arguments :post_arguments, :required => false
+end.parse! do |options|
+    fail "invalid URL '#{options.url}', URL has to start with '/'" unless options.url =~ /^\//
+end
+
+c = HTTPClient.new
+
+begin
+    if options.post_arguments.empty?
+        puts c.get_async("http://#{options.server}:#{options.port}#{options.url}").pop.content.read
+    else
+        puts c.post_async("http://#{options.server}:#{options.port}#{options.url}", options.post_arguments.join("\n")).pop.content.read
+    end 
+rescue SocketError, Errno::ECONNREFUSED => e
+    puts "Falied to connect: #{e}"
+end
+```
+
+Example usage with default server:
+
+    examples/httpclient /index.html
+
+The output will contain Google website.
+
+Using different server:
+
+    examples/httpclient --server ibm.com /index.html
+
+When run without arguments:
+
+    examples/httpclient
+
+The following message will be printed and the program will exit (status 42):
+
+    Error: mandatory argument 'url' not given
+    Usage: httpclient [switches|options] [--] url [post-arguments*]
+    Switches:
+       --help (-h) - display this help message
+    Options:
+       --server [www.google.com] - server address
+       --port [80] - server port
+    Arguments:
+       url - URL to GET or POST to if arguments are given
+       post-arguments* (optional)
+
+When used with command that does not start with `/`:
+
+    examples/httpclient test
+
+It will print the following message and exit:
+
+    Error: invalid URL 'test', URL has to start with '/'
+    Usage: httpclient [switches|options] [--] url [post-arguments*]
+    Switches:
+       --help (-h) - display this help message
+    Options:
+       --server [www.google.com] - server address
+       --port [80] - server port
+    Arguments:
+       url - URL to GET or POST to if arguments are given
+       post-arguments* (optional)
+
 ### Sinatra server example
 
 ```ruby
