@@ -11,6 +11,7 @@ Command Line Interface gem allows you to quickly specify command argument parser
 ### Sinatra server example
 
 ```ruby
+require 'rubygems'
 require 'cli'
 require 'ip'
 
@@ -84,6 +85,7 @@ Example version output:
 ### Statistic data processor example
 
 ```ruby
+require 'rubygems'
 require 'cli'
 require 'pathname'
 require 'yaml'
@@ -155,6 +157,7 @@ Default and mandatory arguments will have priority on matching values (see specs
 The `options` specifier matched value will always be an array of casted elements or empty if option not specified.
 
 ```ruby
+require 'rubygems'
 require 'cli'
 require 'pathname'
 
