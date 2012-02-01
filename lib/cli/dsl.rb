@@ -57,6 +57,10 @@ class CLI
 				@options[:default].to_s
 			end
 
+			def default_cast
+				cast(default)
+			end
+
 			def has_default?
 				@options.member? :default
 			end
@@ -70,6 +74,10 @@ class CLI
 			def default
 				value = @options[:default]
 				value.is_a?(Array) ? value.map{|v| v.to_s} : [value.to_s]
+			end
+
+			def default_cast
+				default.map{|d| cast(d)}
 			end
 		end
 
@@ -96,7 +104,7 @@ class CLI
 				name.to_s.tr('_', '-')
 			end
 
-			def multiple?
+			def multiary?
 				false
 			end
 		end
@@ -112,7 +120,7 @@ class CLI
 				out
 			end
 
-			def multiple?
+			def multiary?
 				true
 			end
 		end
@@ -153,7 +161,7 @@ class CLI
 			include DSL::Value
 			include DSL::Cast
 
-			def multiple?
+			def multiary?
 				false
 			end
 		end
@@ -161,7 +169,7 @@ class CLI
 		class Options < Option
 			include DSL::MultiDefault
 
-			def multiple?
+			def multiary?
 				true
 			end
 		end

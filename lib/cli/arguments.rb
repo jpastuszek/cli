@@ -7,8 +7,8 @@ class CLI::Arguments < Array
 		select{|a| a.mandatory?}
 	end
 
-	def multiple
-		select{|a| a.multiple?}
+	def multiary
+		select{|a| a.multiary?}
 	end
 end
 

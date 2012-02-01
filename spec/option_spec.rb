@@ -34,6 +34,21 @@ describe CLI do
 			ps.size.should == [24, 10]
 		end
 
+		it "should support casting of multiple options with default" do
+			ps = CLI.new do
+				options :log_file, :cast => Pathname, :default => 'test.log'
+			end.parse(['--log-file', 'server.log', '--log-file', 'error.log'])
+
+			ps.log_file.should be_a Array
+			ps.log_file.length.should == 2
+
+			ps.log_file.first.should be_a Pathname
+			ps.log_file.first.to_s.should == 'server.log'
+
+			ps.log_file.last.should be_a Pathname
+			ps.log_file.last.to_s.should == 'error.log'
+		end
+
 		it "should support casting with lambda" do
 			ps = CLI.new do
 				option :size, :cast => lambda{|v| v.to_i + 2}

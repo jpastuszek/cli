@@ -1,10 +1,6 @@
 require 'cli/switches'
 
 class CLI::Options < CLI::Switches
-	def defaults
-		select{|o| o.has_default?}
-	end
-
 	def mandatory
 		select{|o| o.mandatory?}
 	end
@@ -13,8 +9,12 @@ class CLI::Options < CLI::Switches
 		select{|o| not o.mandatory?}
 	end
 
-	def multiple
-		select{|a| a.multiple?}
+	def unarry
+		select{|a| not a.multiary?}
+	end
+
+	def multiary
+		select{|a| a.multiary?}
 	end
 end
 

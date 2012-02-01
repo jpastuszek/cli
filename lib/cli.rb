@@ -98,13 +98,17 @@ class CLI
 		end
 
 		def append(argument, value)
-			v = (send(argument.name.to_s) or [])
+			v = (get(argument) or [])
 			v << value
 			send((argument.name.to_s + '=').to_sym, v) 
 		end
 
 		def set(argument)
 			value(argument, true)
+		end
+
+		def get(argument)
+			send(argument.name.to_s)
 		end
 	end
 
@@ -146,7 +150,7 @@ class CLI
 
 		@arguments << arguments_dsl
 
-		raise ParserError::MultipleArgumentsSpecifierError.new(@arguments.multiple) if @arguments.multiple.length > 1
+		raise ParserError::MultipleArgumentsSpecifierError.new(@arguments.multiary) if @arguments.multiary.length > 1
 	end
 
 	def switch(name, options = {})
@@ -196,13 +200,8 @@ class CLI
 		end
 
 		# initialize multi options
-		@options.multiple.each do |o|
+		@options.multiary.each do |o|
 			values.value(o, [])
-		end
-
-		# set defaults
-		@options.defaults.each do |o|
-			values.value(o, o.cast(o.default))
 		end
 
 		# process switches
@@ -215,7 +214,7 @@ class CLI
 				values.set(switch)
 			elsif option = @options.find(arg)
 				value = argv.shift or raise ParsingError::MissingOptionValueError.new(option)
-				if option.multiple?
+				if option.multiary?
 					values.append(option, option.cast(value))
 				else
 					values.value(option, option.cast(value))
@@ -226,10 +225,21 @@ class CLI
 			end
 		end
 
-		argv.shift if argv.first == '--'
+		# set defaults
+		@options.unarry.each do |o|
+			next unless o.has_default?
+			values.value(o, o.default_cast) if values.get(o) == nil
+		end
+
+		@options.multiary.each do |o|
+			next unless o.has_default?
+			values.value(o, o.default_cast) if values.get(o) == []
+		end
 
 		# check mandatory options
 		raise ParsingError::MandatoryOptionsNotSpecifiedError.new(mandatory_options) unless mandatory_options.empty?
+
+		argv.shift if argv.first == '--'
 
 		# process arguments
 		arguments = @arguments.dup
@@ -237,7 +247,7 @@ class CLI
 			value = if arguments.mandatory.length < argv.length
 				arg = argv.shift
 
-				if argument.multiple?
+				if argument.multiary?
 					v = [arg]
 					while argv.length > arguments.length
 						v << argv.shift
@@ -250,7 +260,7 @@ class CLI
 				if argument.has_default?
 					argument.default
 				elsif not argument.mandatory?
-					argument.multiple? ? [] : nil
+					argument.multiary? ? [] : nil
 				else
 					raise ParsingError::MandatoryArgumentNotSpecifiedError.new(argument) if argv.empty?
 				end
@@ -309,7 +319,7 @@ class CLI
 		out.print(@arguments.map do |a|
 			v = ''
 			v += '[' unless a.mandatory?
-			v += a.multiple? ? a.to_s + '*': a.to_s
+			v += a.multiary? ? a.to_s + '*': a.to_s
 			v += ']' unless a.mandatory?
 			v
 		end.join(' '))
@@ -337,7 +347,7 @@ class CLI
 		unless @options.empty?
 			out.puts "Options:"
 			@options.each do |o|
-				unless o.multiple?
+				unless o.multiary?
 					out.print "   #{o.switch}"
 				else
 					out.print "   #{o.switch}*"
@@ -353,7 +363,7 @@ class CLI
 		unless @arguments.empty?
 			out.puts "Arguments:"
 			@arguments.each do |a|
-				unless a.multiple?
+				unless a.multiary?
 					out.print "   #{a}"
 				else
 					out.print "   #{a}*"
