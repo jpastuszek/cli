@@ -65,6 +65,14 @@ class CLI
 				@options.member? :default
 			end
 
+			def default_label
+				@options[:default_label].to_s
+			end
+
+			def has_default_label?
+				@options.member? :default_label
+			end
+
 			def mandatory?
 				not has_default? and @options[:required]
 			end

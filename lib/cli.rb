@@ -354,7 +354,11 @@ class CLI
 				end
 				out.print " (#{o.switch_short})" if o.has_short?
 				out.print ' (mandatory)' if o.mandatory?
-				out.print " [%s]" % o.default if o.has_default?
+				if o.has_default_label?
+					out.print " [#{o.default_label}]"
+				elsif o.has_default?
+					out.print " [%s]" % o.default
+				end
 				out.print " - #{o.description}" if o.description?
 				out.puts
 			end
@@ -369,7 +373,11 @@ class CLI
 					out.print "   #{a}*"
 				end
 				out.print ' (optional)' if not a.mandatory? and not a.has_default?
-				out.print " [%s]" % (a.default.is_a?(Array) ? a.default.join(' ') : a.default) if a.has_default?
+				if a.has_default_label?
+					out.print " [#{a.default_label}]"
+				elsif a.has_default?
+					out.print " [%s]" % (a.default.is_a?(Array) ? a.default.join(' ') : a.default)
+				end
 				out.print " - #{a.description}" if a.description?
 				out.puts
 			end

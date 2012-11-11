@@ -184,6 +184,50 @@ describe CLI do
 			ss.usage.should include("4")
 		end
 
+		it "should show default value for option" do 
+			ss = CLI.new do
+				option :group, :default => 'red'
+			end
+			ss.usage.should include("[red]")
+		end
+
+		it "should show default label for option" do 
+			ss = CLI.new do
+				option :group, :default_label => 'blue'
+			end
+			ss.usage.should include("[blue]")
+		end
+
+		it "should show default label rather than default value if available for option" do 
+			ss = CLI.new do
+				option :group, :default_label => 'blue', :default => 'red'
+			end
+			ss.usage.should include("[blue]")
+			ss.usage.should_not include("[red]")
+		end
+
+		it "should show default value for argument" do 
+			ss = CLI.new do
+				argument :group, :default => 'red'
+			end
+			ss.usage.should include("[red]")
+		end
+
+		it "should show default label for argument" do 
+			ss = CLI.new do
+				argument :group, :default_label => 'blue'
+			end
+			ss.usage.should include("[blue]")
+		end
+
+		it "should show default label rather than default value if available for argument" do 
+			ss = CLI.new do
+				argument :group, :default_label => 'blue', :default => 'red'
+			end
+			ss.usage.should include("[blue]")
+			ss.usage.should_not include("[red]")
+		end
+
 		describe "usage line" do
 			it "should suggest that arguments can be used in usage line" do
 				ss = CLI.new do
@@ -191,7 +235,7 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.first.should == "Usage: rspec [switches] [--] location\n"
+				ss.usage.lines.first.should == "Usage: rspec [switches] [--] location\n"
 			end
 
 			it "should suggest that switches can be used in usage line" do
@@ -199,7 +243,7 @@ describe CLI do
 					switch :location, :short => :l
 				end
 
-				ss.usage.first.should == "Usage: rspec [switches]\n"
+				ss.usage.lines.first.should == "Usage: rspec [switches]\n"
 			end
 
 			it "should suggest that options can be used in usage line" do
@@ -208,7 +252,7 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.first.should == "Usage: rspec [switches|options]\n"
+				ss.usage.lines.first.should == "Usage: rspec [switches|options]\n"
 			end
 
 			it "should suggest that switches or options can be used in usage line" do
@@ -217,7 +261,7 @@ describe CLI do
 					option :size, :short => :s
 				end
 
-				ss.usage.first.should == "Usage: rspec [switches|options]\n"
+				ss.usage.lines.first.should == "Usage: rspec [switches|options]\n"
 			end
 
 			it "should suggest that option is mandatory" do
@@ -227,7 +271,7 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.first.should == "Usage: rspec [switches] --size <value> --group <value>\n"
+				ss.usage.lines.first.should == "Usage: rspec [switches] --size <value> --group <value>\n"
 
 				ss = CLI.new do
 					option :location, :short => :l
@@ -236,14 +280,14 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.first.should == "Usage: rspec [switches|options] --size <value> --group <value>\n"
+				ss.usage.lines.first.should == "Usage: rspec [switches|options] --size <value> --group <value>\n"
 
 				ss = CLI.new do
 					switch :location, :short => :l
 					option :size, :short => :s, :required => true
 				end
 
-				ss.usage.first.should == "Usage: rspec [switches] --size <value>\n"
+				ss.usage.lines.first.should == "Usage: rspec [switches] --size <value>\n"
 			end
 
 			it "should suggest that argument is optional" do
@@ -255,7 +299,7 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.first.should == "Usage: rspec [switches] [--] location [size] [colour] group\n"
+				ss.usage.lines.first.should == "Usage: rspec [switches] [--] location [size] [colour] group\n"
 			end
 		end
 
@@ -300,7 +344,7 @@ describe CLI do
 				switch :logging, :short => :l
 				switch :run
 				option :location, :short => :r, :description => "place where server is located"
-				option :group, :default => 'red'
+				option :group, :default => 'red', :default_label => 'colour'
 				options :power_up, :short => :p, :required => true
 				option :speed, :short => :s, :cast => Integer
 				option :the_number_of_the_beast, :short => :b, :cast => Integer, :default => 666, :description => "The number of the beast"
@@ -311,7 +355,7 @@ describe CLI do
 				argument :string
 				argument :limit, :cast => Integer, :required => false, :description => "limit in seconds"
 				argument :unlock_code, :cast => Integer, :required => false
-				argument :code, :cast => Integer, :default => '123', :description => "secret code"
+				argument :code, :cast => Integer, :default => '123', :description => "secret code", :default_label => 'generated'
 				argument :illegal_prime, :cast => Integer, :description => "prime number that represents information that it is forbidden to possess or distribute"
 				arguments :files, :cast => Pathname, :default => ['test', '1', '2'], :description => "files to process"
 			end.usage
@@ -329,7 +373,7 @@ Switches:
    --version - display version string
 Options:
    --location (-r) - place where server is located
-   --group [red]
+   --group [colour]
    --power-up* (-p) (mandatory)
    --speed (-s)
    --the-number-of-the-beast (-b) [666] - The number of the beast
@@ -340,7 +384,7 @@ Arguments:
    string
    limit (optional) - limit in seconds
    unlock-code (optional)
-   code [123] - secret code
+   code [generated] - secret code
    illegal-prime - prime number that represents information that it is forbidden to possess or distribute
    files* [test 1 2] - files to process
 EOS

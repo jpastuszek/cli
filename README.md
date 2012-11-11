@@ -389,6 +389,7 @@ The value after casting (if used) will be available from the `#parse` or `#parse
 In addition to *switch*, option hash can have following pairs:
 
 * **:default => value** - use default value of *value* if the option was not specified on the command argument list. The *value* will firstly be casted to string (with `#to_s`) and then it will be casted if casting is specified.
+* **:default_label => label** - display *label* in usage rather than default value - useful to descirbe default value if default value is generated if no value is provided
 * **:cast => cast specifier** - cast the provided value (or default) with given *cast specifier*. 
 The specifier can be a class constant (like `Integer` or `Float`); the value will be provided to `#new` method of the class and resulting object used as option value. When provided constant does not respond to `#new` (i.e. it is a module) the `#load` method will be tried. If provided specifier is a Proc (or `lambda {}`) the Proc will be called with the value and resulting value will be used. Otherwise `CLI::ParsingError::CastError` will be raised.
 * **:required => true** - if used and no *default* value is specified the `#parse` method will fail with `CLI::ParsingError::MissingOptionValueError` if the option was not specified in the command argument list. If `#parse!` method was used the program will exit with appropriate message.
