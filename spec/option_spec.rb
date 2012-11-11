@@ -26,6 +26,22 @@ describe CLI do
 			ps.size.should == 24
 		end
 
+		it "casting should fail if not proper integer given" do
+			lambda {
+				ps = CLI.new do
+					option :size, :cast => Integer
+				end.parse(['--size', '24.99'])
+			}.should raise_error(CLI::ParsingError::CastError)
+		end
+
+		it "casting should fail if not proper float given" do
+			lambda {
+				ps = CLI.new do
+					option :size, :cast => Float
+				end.parse(['--size', '24.99x'])
+			}.should raise_error(CLI::ParsingError::CastError)
+		end
+
 		it "should support casting of multiple options" do
 			ps = CLI.new do
 				options :size, :cast => Integer
@@ -86,7 +102,7 @@ describe CLI do
 		it "default value is casted" do
 			ps = CLI.new do
 				option :location, :default => 'singapore'
-				option :size, :cast => Integer, :default => 23.99
+				option :size, :cast => Integer, :default => 23
 			end.parse([])
 			ps.location.should be_a String
 			ps.location.should == 'singapore'

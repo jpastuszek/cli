@@ -19,9 +19,9 @@ class CLI
 
 					if cast_to.is_a? Module # all classes are modules
 						if cast_to == Integer
-							value.to_i
+							Integer(value)
 						elsif cast_to == Float
-							value.to_f
+							Float(value)
 						elsif cast_to.respond_to? :new
 							cast_to.new(value)
 						elsif cast_to.respond_to? :load

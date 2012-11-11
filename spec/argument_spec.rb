@@ -32,6 +32,22 @@ describe CLI do
 			ps.number.should == 123.0
 		end
 
+		it "casting should fail if not proper integer given" do
+			lambda {
+				ps = CLI.new do
+					argument :size, :cast => Integer
+				end.parse(['24.99'])
+			}.should raise_error(CLI::ParsingError::CastError)
+		end
+
+		it "casting should fail if not proper float given" do
+			lambda {
+				ps = CLI.new do
+					argument :size, :cast => Float
+				end.parse(['24.99x'])
+			}.should raise_error(CLI::ParsingError::CastError)
+		end
+
 		it "should cast default value" do
 			ps = CLI.new do
 				argument :number, :cast => Integer, :default => '123'
