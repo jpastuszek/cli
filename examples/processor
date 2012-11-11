@@ -4,16 +4,16 @@ require 'cli'
 require 'pathname'
 require 'yaml'
 
-options = CLI.new do
+settings = CLI.new do
 	description 'Generate blog posts in given Jekyll directory from input statistics'
 	stdin :log_data,		:cast => YAML, :description => 'statistic data in YAML format'
 	option :location,		:short => :l, :description => 'location name (ex. Dublin, Singapore, Califorina)'
 	option :csv_dir,		:short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be storred (relative to jekyll-dir)'
 	argument :jekyll_dir,	:cast => Pathname, :default => '/var/lib/vhs/jekyll', :description => 'directory where site source is located'
-end.parse! do |options|
-	fail 'jekyll-dir is not a directory' unless options.jekyll_dir.directory?
-	fail '--csv-dir is not a directory (relative to jekyll-dir)' unless (options.jekyll_dir + options.csv_dir).directory?
+end.parse! do |settings|
+	fail 'jekyll-dir is not a directory' unless settings.jekyll_dir.directory?
+	fail '--csv-dir is not a directory (relative to jekyll-dir)' unless (settings.jekyll_dir + settings.csv_dir).directory?
 end
 
-p options
+p settings
 

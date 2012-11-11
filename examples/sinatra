@@ -3,7 +3,7 @@ require 'rubygems'
 require 'cli'
 require 'ip'
 
-options = CLI.new do
+settings = CLI.new do
 	description 'Example CLI usage for Sinatra server application'
 	version "1.0.0"
 	switch :no_bind,			:description => "Do not bind to TCP socket - useful with -s fastcgi option"
@@ -18,7 +18,7 @@ options = CLI.new do
 	option :limit_disk,			:default => 0, :cast => Integer, :description => "Image cache temporary file size limit in bytes - used when memory mapped file limit is used up"
 end.parse!
 
-p options
+p settings
 
 ## use to set sinatra settings
 #require 'sinatra/base'
@@ -26,13 +26,13 @@ p options
 #sinatra = Sinatra.new
 #
 #sinatra.set :environment, 'production'
-#sinatra.set :server, options.server
+#sinatra.set :server, settings.server
 #sinatra.set :lock, true
 #sinatra.set :boundary, "thumnail image data"
-#sinatra.set :logging, (not options.no_logging)
-#sinatra.set :debug, options.debug
-#sinatra.set :optimization, (not options.no_optimization)
-#sinatra.set :limit_memory, options.limit_memory
-#sinatra.set :limit_map, options.limit_map
-#sinatra.set :limit_disk, options.limit_disk
+#sinatra.set :logging, (not settings.no_logging)
+#sinatra.set :debug, settings.debug
+#sinatra.set :optimization, (not settings.no_optimization)
+#sinatra.set :limit_memory, settings.limit_memory
+#sinatra.set :limit_map, settings.limit_map
+#sinatra.set :limit_disk, settings.limit_disk
 

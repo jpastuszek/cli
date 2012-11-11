@@ -19,22 +19,22 @@ re 'rubygems'
 require 'cli'
 require 'httpclient'
 
-options = CLI.new do
+settings = CLI.new do
     option :server, :description => 'server address', :default => 'www.google.com'
     option :port,	:description => 'server port', :cast => Integer, :default => 80
     argument :url,	:description => 'URL to GET or POST to if arguments are given'
     arguments :post_arguments, :required => false
-end.parse! do |options|
-    fail "invalid URL '#{options.url}', URL has to start with '/'" unless options.url =~ /^\//
+end.parse! do |settings|
+    fail "invalid URL '#{settings.url}', URL has to start with '/'" unless settings.url =~ /^\//
 end
 
 c = HTTPClient.new
 
 begin
-    if options.post_arguments.empty?
-        puts c.get_async("http://#{options.server}:#{options.port}#{options.url}").pop.content.read
+    if settings.post_arguments.empty?
+        puts c.get_async("http://#{settings.server}:#{settings.port}#{settings.url}").pop.content.read
     else
-        puts c.post_async("http://#{options.server}:#{options.port}#{options.url}", options.post_arguments.join("\n")).pop.content.read
+        puts c.post_async("http://#{settings.server}:#{settings.port}#{settings.url}", settings.post_arguments.join("\n")).pop.content.read
     end 
 rescue SocketError, Errno::ECONNREFUSED => e
     puts "Falied to connect: #{e}"
@@ -92,7 +92,7 @@ require 'rubygems'
 require 'cli'
 require 'ip'
 
-options = CLI.new do
+settings = CLI.new do
 	description 'Example CLI usage for Sinatra server application'
 	version "1.0.0"
 	switch :no_bind,			:description => "Do not bind to TCP socket - useful with -s fastcgi option"
@@ -113,15 +113,15 @@ require 'sinatra/base'
 sinatra = Sinatra.new
 
 sinatra.set :environment, 'production'
-sinatra.set :server, options.server
+sinatra.set :server, settings.server
 sinatra.set :lock, true
 sinatra.set :boundary, "thumnail image data"
-sinatra.set :logging, (not options.no_logging)
-sinatra.set :debug, options.debug
-sinatra.set :optimization, (not options.no_optimization)
-sinatra.set :limit_memory, options.limit_memory
-sinatra.set :limit_map, options.limit_map
-sinatra.set :limit_disk, options.limit_disk
+sinatra.set :logging, (not settings.no_logging)
+sinatra.set :debug, settings.debug
+sinatra.set :optimization, (not settings.no_optimization)
+sinatra.set :limit_memory, settings.limit_memory
+sinatra.set :limit_map, settings.limit_map
+sinatra.set :limit_disk, settings.limit_disk
 
 # set up your application
 
@@ -167,18 +167,18 @@ require 'cli'
 require 'pathname'
 require 'yaml'
 
-options = CLI.new do
+settings = CLI.new do
 	description 'Generate blog posts in given Jekyll directory from input statistics'
 	stdin :log_data,        :cast => YAML, :description => 'statistic data in YAML format'
 	option :location,       :short => :l, :description => 'location name (ex. Dublin, Singapore, Califorina)'
 	option :csv_dir,        :short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be storred (relative to jekyll-dir)'
 	argument :jekyll_dir,   :cast => Pathname, :default => '/var/lib/vhs/jekyll', :description => 'directory where site source is located'
-end.parse! do |options|
-	fail 'jekyll-dir is not a directory' unless options.jekyll_dir.directory?
-	fail '--csv-dir is not a directory (relative to jekyll-dir)' unless (options.jekyll_dir + options.csv_dir).directory?
+end.parse! do |settings|
+	fail 'jekyll-dir is not a directory' unless settings.jekyll_dir.directory?
+	fail '--csv-dir is not a directory (relative to jekyll-dir)' unless (settings.jekyll_dir + settings.csv_dir).directory?
 end
 
-p options
+p settings
 
 # do your stuff
 ```
@@ -205,7 +205,7 @@ With this example usage (assuming /var/lib/vhs/jekyll/csv dir exist):
       :failures: 0
     EOF
 
-The `options` variable will contain:
+The `settings` variable will contain:
 
     #<CLI::Values stdin={:parser=>{:successes=>41, :failures=>0}}, jekyll_dir=#<Pathname:/var/lib/vhs/jekyll>, csv_dir=#<Pathname:csv>, help=nil, location="Singapore">
 
@@ -238,20 +238,20 @@ require 'rubygems'
 require 'cli'
 require 'pathname'
 
-values = CLI.new do
+settings = CLI.new do
 	description 'Lists content of directories'
 	switch :long, :short => :l, :description => 'use long listing'
 	options :exclude, :short => :e, :description => 'exclude files from listing'
 	arguments :directories, :cast => Pathname, :default => '.', :description => 'directories to list content of'
 end.parse!
 
-values.directories.each do |dir|
+settings.directories.each do |dir|
 	next unless dir.directory?
 	dir.each_entry do |e|
 		next if e.to_s == '.' or e.to_s == '..'
 		e = dir + e
-		next if values.exclude.include? e.to_s
-		if values.long
+		next if settings.exclude.include? e.to_s
+		if settings.long
 			puts "#{e.stat.uid}:#{e.stat.gid} #{e}"
 		else
 			puts e
