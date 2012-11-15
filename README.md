@@ -15,7 +15,7 @@ It will use HTTPClient to connect to server that address and port can be specifi
 It expects at least one argument specifying the URL (that needs to start with `/`) and optional set of POST arguments.
 
 ```ruby
-re 'rubygems'
+require 'rubygems'
 require 'cli'
 require 'httpclient'
 
