@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "cli"
-  s.version = "1.3.0"
+  s.version = "1.3.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jakub Pastuszek"]
-  s.date = "2012-11-11"
+  s.date = "2012-11-16"
   s.description = "Command Line Interface gem allows you to quickly specify command argument parser that will automatically generate usage, handle stdin, switches, options and arguments with default values and value casting"
   s.email = "jpastuszek@gmail.com"
   s.extra_rdoc_files = [
@@ -51,7 +51,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/jpastuszek/cli"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.15"
+  s.rubygems_version = "1.8.24"
   s.summary = "Command line argument parser with stdin handling and usage generator"
 
   if s.respond_to? :specification_version then
