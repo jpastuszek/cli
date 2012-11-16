@@ -37,7 +37,7 @@ class CLI
 						end
 					end
 				rescue => e
-					raise ParsingError::CastError.new(@name, @options[:cast].name, e)
+					raise ParsingError::CastError.new(@name, @options[:cast].respond_to?(:name) ? @options[:cast].name : @options[:cast], e)
 				end
 			end
 		end

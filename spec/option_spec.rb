@@ -42,6 +42,14 @@ describe CLI do
 			}.should raise_error(CLI::ParsingError::CastError)
 		end
 
+		it "casting should fail if there is error in cast lambda" do
+			lambda {
+				ps = CLI.new do
+					option :size, :cast => lambda{|v| fail 'test'}
+				end.parse(['--size', '24.99x'])
+			}.should raise_error(CLI::ParsingError::CastError)
+		end
+
 		it "should support casting of multiple options" do
 			ps = CLI.new do
 				options :size, :cast => Integer

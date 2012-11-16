@@ -48,6 +48,14 @@ describe CLI do
 			}.should raise_error(CLI::ParsingError::CastError)
 		end
 
+		it "casting should fail if there is error in cast lambda" do
+			lambda {
+				ps = CLI.new do
+					argument :size, :cast => lambda{|v| fail 'test'}
+				end.parse(['24.99x'])
+			}.should raise_error(CLI::ParsingError::CastError)
+		end
+
 		it "should cast default value" do
 			ps = CLI.new do
 				argument :number, :cast => Integer, :default => '123'
