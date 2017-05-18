@@ -37,7 +37,7 @@ begin
         puts c.post_async("http://#{settings.server}:#{settings.port}#{settings.url}", settings.post_arguments.join("\n")).pop.content.read
     end 
 rescue SocketError, Errno::ECONNREFUSED => e
-    puts "Falied to connect: #{e}"
+    puts "Failed to connect: #{e}"
 end
 ```
 
@@ -115,7 +115,7 @@ sinatra = Sinatra.new
 sinatra.set :environment, 'production'
 sinatra.set :server, settings.server
 sinatra.set :lock, true
-sinatra.set :boundary, "thumnail image data"
+sinatra.set :boundary, "thumbnail image data"
 sinatra.set :logging, (not settings.no_logging)
 sinatra.set :debug, settings.debug
 sinatra.set :optimization, (not settings.no_optimization)
@@ -170,8 +170,8 @@ require 'yaml'
 settings = CLI.new do
 	description 'Generate blog posts in given Jekyll directory from input statistics'
 	stdin :log_data,        :cast => YAML, :description => 'statistic data in YAML format'
-	option :location,       :short => :l, :description => 'location name (ex. Dublin, Singapore, Califorina)'
-	option :csv_dir,        :short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be storred (relative to jekyll-dir)'
+	option :location,       :short => :l, :description => 'location name (ex. Dublin, Singapore, California)'
+	option :csv_dir,        :short => :c, :cast => Pathname, :default => 'csv', :description => 'directory name where CSV file will be stored (relative to jekyll-dir)'
 	argument :jekyll_dir,   :cast => Pathname, :default => '/var/lib/vhs/jekyll', :description => 'directory where site source is located'
 end.parse! do |settings|
 	fail 'jekyll-dir is not a directory' unless settings.jekyll_dir.directory?
@@ -192,8 +192,8 @@ Example help message:
     Switches:
        --help (-h) - display this help message
     Options:
-       --location (-l) - location name (ex. Dublin, Singapore, Califorina)
-       --csv-dir (-c) [csv] - directory name where CSV file will be storred (relative to jekyll-dir)
+       --location (-l) - location name (ex. Dublin, Singapore, California)
+       --csv-dir (-c) [csv] - directory name where CSV file will be stored (relative to jekyll-dir)
     Arguments:
        jekyll-dir [/var/lib/vhs/jekyll] - directory where site source is located
 
@@ -389,7 +389,7 @@ The value after casting (if used) will be available from the `#parse` or `#parse
 In addition to *switch*, option hash can have following pairs:
 
 * **:default => value** - use default value of *value* if the option was not specified on the command argument list. The *value* will firstly be casted to string (with `#to_s`) and then it will be casted if casting is specified.
-* **:default_label => label** - display *label* in usage rather than default value - useful to descirbe default value if default value is generated if no value is provided
+* **:default_label => label** - display *label* in usage rather than default value - useful to describe default value if default value is generated if no value is provided
 * **:cast => cast specifier** - cast the provided value (or default) with given *cast specifier*. 
 The specifier can be a class constant - the value will be provided to `#new` method of the class and resulting object used as option value. When provided constant does not respond to `#new` (i.e. it is a module) the `#load` method will be tried instead. If provided specifier is a Proc (or `lambda {}`) the Proc will be called with the value and resulting value will be used. Otherwise `CLI::ParsingError::CastError` will be raised.  Special cast specified `Integer` or `Float` can also be used - the value will be strictly casted to integer or float type.
 * **:required => true** - if used and no *default* value is specified the `#parse` method will fail with `CLI::ParsingError::MissingOptionValueError` if the option was not specified in the command argument list. If `#parse!` method was used the program will exit with appropriate message.
