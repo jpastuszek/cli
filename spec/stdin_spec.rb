@@ -13,14 +13,14 @@ EOF
 		end
 
 		it "should be nil if not specified" do
-			ps = CLI.new.parse
+			ps = CLI.new.parse([])
       expect(ps.stdin).to be_nil
 		end
 
 		it "should return IO if stdin is defined" do
 			ps = CLI.new do
 				stdin
-			end.parse
+			end.parse([])
       expect(ps.stdin).to be_a IO
 		end
 
@@ -31,7 +31,7 @@ EOF
 			end
 
 			stdin_write(@yaml) do
-				ps = ss.parse
+				ps = ss.parse([])
 			end
 
       expect(ps.stdin).to eq({:parser=>{:successes=>41, :failures=>0}})
@@ -44,7 +44,7 @@ EOF
 			end
 
 			stdin_write('hello world') do
-				ps = ss.parse
+				ps = ss.parse([])
 			end
 
       expect(ps.stdin).to eq 'HELLO WORLD'
@@ -64,7 +64,7 @@ EOF
 			end
 
 			stdin_write('hello world') do
-				ps = ss.parse
+				ps = ss.parse([])
 			end
 
       expect(ps.stdin).to be_a Upcaser
