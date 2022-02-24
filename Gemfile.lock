@@ -4,6 +4,7 @@ GEM
     diff-lcs (1.5.0)
     psych (4.0.3)
       stringio
+    rake (13.0.6)
     rdoc (6.4.0)
       psych (>= 4.0.0)
     rspec (3.11.0)
@@ -27,6 +28,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 2.2)
+  rake (~> 13.0)
   rdoc (~> 6.4)
   rspec (~> 3.11)
   ruby-ip (~> 0.9.3)

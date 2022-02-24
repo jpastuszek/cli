@@ -35,7 +35,7 @@ begin
         puts c.get_async("http://#{settings.server}:#{settings.port}#{settings.url}").pop.content.read
     else
         puts c.post_async("http://#{settings.server}:#{settings.port}#{settings.url}", settings.post_arguments.join("\n")).pop.content.read
-    end 
+    end
 rescue SocketError, Errno::ECONNREFUSED => e
     puts "Failed to connect: #{e}"
 end
@@ -200,7 +200,7 @@ Example help message:
 With this example usage (assuming /var/lib/vhs/jekyll/csv dir exist):
 
     examples/processor --location Singapore <<EOF
-    :parser: 
+    :parser:
       :successes: 41
       :failures: 0
     EOF
@@ -303,7 +303,7 @@ Prints:
     ...
 
 With directory list:
-    
+
     examples/ls *
 
 Prints:
@@ -320,7 +320,7 @@ Prints:
     pkg/cli-0.0.1.gem
     pkg/cli-0.0.2.gem
     ...
-    
+
 Long printout:
 
     examples/ls -l *
@@ -339,7 +339,7 @@ Prints:
     501:20 pkg/cli-0.0.1.gem
     501:20 pkg/cli-0.0.2.gem
     ...
-    
+
 ## Usage
 
 `CLI.new` takes a block where you specify parser behavior. The returned object is a parser that has `#parse` and `#parse!` methods.
@@ -350,7 +350,7 @@ It will take argument array (defaults to ARGV), standard input IO (defaults to S
 
 The method will parse argument array and cast standard input IO according to parser specification and return OpenStruct kind of object with resulting values.
 
-The returned object will have `help` attribute set if `--help` or `-h` switch was found in argument array or `version` attribute if `--version` argument was found. 
+The returned object will have `help` attribute set if `--help` or `-h` switch was found in argument array or `version` attribute if `--version` argument was found.
 In other case all the attributes will be set to appropriate values depending on argument array and parser specification.
 In case of parsing error `CLI::ParsingError` kind of exception will be raised.
 
@@ -390,7 +390,7 @@ In addition to *switch*, option hash can have following pairs:
 
 * **:default => value** - use default value of *value* if the option was not specified on the command argument list. The *value* will firstly be casted to string (with `#to_s`) and then it will be casted if casting is specified.
 * **:default_label => label** - display *label* in usage rather than default value - useful to describe default value if default value is generated if no value is provided
-* **:cast => cast specifier** - cast the provided value (or default) with given *cast specifier*. 
+* **:cast => cast specifier** - cast the provided value (or default) with given *cast specifier*.
 The specifier can be a class constant - the value will be provided to `#new` method of the class and resulting object used as option value. When provided constant does not respond to `#new` (i.e. it is a module) the `#load` method will be tried instead. If provided specifier is a Proc (or `lambda {}`) the Proc will be called with the value and resulting value will be used. Otherwise `CLI::ParsingError::CastError` will be raised.  Special cast specified `Integer` or `Float` can also be used - the value will be strictly casted to integer or float type.
 * **:required => true** - if used and no *default* value is specified the `#parse` method will fail with `CLI::ParsingError::MissingOptionValueError` if the option was not specified in the command argument list. If `#parse!` method was used the program will exit with appropriate message.
 
@@ -406,7 +406,7 @@ After the parser encounters command line argument that is not a *switch* or *opt
 
 Each argument will be matched to argument specifications in order and their value after optional casting will be available as `#parse` or `#parse!` returned object argument with the same name.
 
-Options hash can contain the same pairs as *option* expect of **:short => :symbol**. 
+Options hash can contain the same pairs as *option* expect of **:short => :symbol**.
 
 If defaults are used the parser will keep using default values until it has enough command line arguments available to fill all mandatory arguments.
 Arguments are required by default, use **:required => false** option pair to use `nil` value if argument is not specified on the command line argument list.
@@ -427,7 +427,7 @@ As with *switch* specifier the **:description => 'string'** can be used.
 Also **:cast => cast specifier** option pair can be used but the value will be an IO object and not string.
 
 ## Contributing to CLI
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
 * Fork the project
@@ -438,6 +438,5 @@ Also **:cast => cast specifier** option pair can be used but the value will be a
 
 ## Copyright
 
-Copyright (c) 2011 Jakub Pastuszek. See LICENSE.txt for
+Copyright (c) 2011-2022 Jakub Pastuszek. See LICENSE.txt for
 further details.
-

@@ -9,36 +9,9 @@ rescue Bundler::BundlerError => e
   $stderr.puts "Run `bundle install` to install missing gems"
   exit e.status_code
 end
-require 'rake'
 
-require 'jeweler'
-Jeweler::Tasks.new do |gem|
-  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "cli"
-  gem.homepage = "http://github.com/jpastuszek/cli"
-  gem.license = "MIT"
-  gem.summary = %Q{Command line argument parser with stdin handling and usage generator}
-  gem.description = %Q{Command Line Interface gem allows you to quickly specify command argument parser that will automatically generate usage, handle stdin, switches, options and arguments with default values and value casting}
-  gem.email = "jpastuszek@gmail.com"
-  gem.authors = ["Jakub Pastuszek"]
-  # dependencies defined in Gemfile
-end
-Jeweler::RubygemsDotOrgTasks.new
-
-require 'rspec/core'
 require 'rspec/core/rake_task'
-RSpec::Core::RakeTask.new(:spec) do |spec|
-  spec.pattern = FileList['spec/**/*_spec.rb']
-end
-
-RSpec::Core::RakeTask.new(:rcov) do |spec|
-  spec.pattern = 'spec/**/*_spec.rb'
-  spec.rcov = true
-end
-
-require 'cucumber/rake/task'
-Cucumber::Rake::Task.new(:features)
-
+RSpec::Core::RakeTask.new(:spec)
 task :default => :spec
 
 require 'rdoc/task'
