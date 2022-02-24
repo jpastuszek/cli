@@ -1,6 +1,8 @@
 Gem::Specification.new do |spec|
+  require 'bundler'
   # spec is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   spec.name = "cli"
+  spec.version = "1.4.0"
   spec.homepage = "http://github.com/jpastuszek/cli"
   spec.license = "MIT"
   spec.summary = %Q{Command line argument parser with stdin handling and usage generator}
