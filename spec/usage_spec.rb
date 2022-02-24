@@ -17,66 +17,66 @@ describe CLI do
 					argument :test
 					argument :code, :cast => Integer, :default => '123'
 				end
-				
+
 				ps = ss.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
-				ps.help.should be_nil
-				ps.location.should == 'singapore'
+        expect(ps.help).to be_nil
+        expect(ps.location).to eq 'singapore'
 
 				ps = ss.parse(['-h', '-l', 'singapore', '--power-up'])
-				ps.help.should be_a String
-				ps.location.should be_nil
+        expect(ps.help).to be_a String
+        expect(ps.location).to be_nil
 
 				ps = ss.parse(['-l', 'singapore', '--power-up', '-h', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
-				ps.help.should be_a String
-				ps.location.should be_nil
+        expect(ps.help).to be_a String
+        expect(ps.location).to be_nil
 
 				ps = ss.parse(['-l', 'singapore', '--power-up', '--help'])
-				ps.help.should be_a String
-				ps.location.should be_nil
+        expect(ps.help).to be_a String
+        expect(ps.location).to be_nil
 
 				ps = ss.parse(['--help', '-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
-				ps.help.should be_a String
-				ps.location.should be_nil
+        expect(ps.help).to be_a String
+        expect(ps.location).to be_nil
 
 				ps = ss.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--size', 'XXXL', '/tmp', 'hello'])
-				ps.help.should be_nil
-				ps.location.should == 'singapore'
+        expect(ps.help).to be_nil
+        expect(ps.location).to eq 'singapore'
 			end
 
 			it "parse! should cause program to exit and display help message on --help or -h switch" do
-				stdout_read do
-					lambda {
+				expect(stdout_read do
+					expect {
 						ps = CLI.new do
 						end.parse!(['--help'])
-					}.should raise_error SystemExit
-				end.should include('Usage:')
+					}.to raise_error SystemExit
+        end).to include('Usage:')
 
-				stdout_read do
-					lambda {
+				expect(stdout_read do
+					expect {
 						ps = CLI.new do
 						end.parse!(['-h'])
-					}.should raise_error SystemExit
-				end.should include('Usage:')
+					}.to raise_error SystemExit
+        end).to include('Usage:')
 			end
 
 			it "should reserve --help and -h switches" do
-				lambda {
+				expect {
 					ps = CLI.new do
 						switch :help
 					end
-				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch --help specified twice'
+				}.to raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch --help specified twice'
 
-				lambda {
+				expect {
 					ps = CLI.new do
 						switch :help2, :short => :h
 					end
-				}.should raise_error CLI::ParserError::ShortNameSpecifiedTwiceError, 'short switch -h specified twice'
+				}.to raise_error CLI::ParserError::ShortNameSpecifiedTwiceError, 'short switch -h specified twice'
 			end
 
 			it "should display help switch in the help message as the last entry" do
-					CLI.new do
+					expect(CLI.new do
 						switch :test
-					end.usage.should include("--test\n   --help (-h) - display this help message")
+          end.usage).to include("--test\n   --help (-h) - display this help message")
 			end
 		end
 
@@ -85,48 +85,48 @@ describe CLI do
 					ps = CLI.new do
 						version '1.0.2'
 					end.parse(['--version'])
-					ps.version.should == "rspec version \"1.0.2\"\n"
+          expect(ps.version).to eq "rspec version \"1.0.2\"\n"
 			end
 
 			it "parse! should cause program to exit displyaing version on --version switch" do
-				stdout_read do
-					lambda {
+				expect(stdout_read do
+					expect {
 						ps = CLI.new do
 							version "1.2.3"
 						end.parse!(['--version'])
-					}.should raise_error SystemExit
-				end.should == "rspec version \"1.2.3\"\n"
+					}.to raise_error SystemExit
+        end).to eq "rspec version \"1.2.3\"\n"
 			end
 
 			it "should display version switch in the help message as the last entry when version is specified" do
-					CLI.new do
-					end.usage.should_not include("--version")
+					expect(CLI.new do
+          end.usage).not_to include("--version")
 
-					CLI.new do
+					expect(CLI.new do
 						version '1.0.2'
-					end.usage.should include("--help (-h) - display this help message\n   --version - display version string")
+          end.usage).to include("--help (-h) - display this help message\n   --version - display version string")
 			end
 
 			it "should reserve --version switch" do
-				lambda {
+				expect {
 					ps = CLI.new do
 						switch :version
 					end
-				}.should_not raise_error
+				}.not_to raise_error
 
-				lambda {
+				expect {
 					ps = CLI.new do
 						version '1.0.2'
 						switch :version
 					end
-				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch --version specified twice'
+				}.to raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'switch --version specified twice'
 
-				lambda {
+				expect {
 					ps = CLI.new do
 						version '1.0.2'
 						option :version
 					end
-				}.should raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'option and switch --version specified twice'
+				}.to raise_error CLI::ParserError::LongNameSpecifiedTwiceError, 'option and switch --version specified twice'
 			end
 		end
 
@@ -136,7 +136,7 @@ describe CLI do
 				switch :logging
 			end
 
-			ss.usage.should include("enable debugging")
+      expect(ss.usage).to include("enable debugging")
 		end
 
 		it "switch description should be casted to string" do
@@ -145,7 +145,7 @@ describe CLI do
 				switch :logging
 			end
 
-			ss.usage.should include("4")
+      expect(ss.usage).to include("4")
 		end
 
 		it "should allow describing options" do
@@ -154,7 +154,7 @@ describe CLI do
 				option :group, :default => 'red'
 			end
 
-			ss.usage.should include("place where server is located")
+      expect(ss.usage).to include("place where server is located")
 		end
 
 		it "option description should be casted to string" do
@@ -163,7 +163,7 @@ describe CLI do
 				option :group, :default => 'red'
 			end
 
-			ss.usage.should include("4")
+      expect(ss.usage).to include("4")
 		end
 
 		it "should allow describing arguments" do
@@ -172,7 +172,7 @@ describe CLI do
 				argument :log, :cast => Pathname, :description => "log file to process"
 			end
 
-			ss.usage.should include("log file to process")
+      expect(ss.usage).to include("log file to process")
 		end
 
 		it "argument description should be casted to string" do
@@ -181,51 +181,51 @@ describe CLI do
 				argument :log, :cast => Pathname, :description => 2 + 2
 			end
 
-			ss.usage.should include("4")
+      expect(ss.usage).to include("4")
 		end
 
-		it "should show default value for option" do 
+		it "should show default value for option" do
 			ss = CLI.new do
 				option :group, :default => 'red'
 			end
-			ss.usage.should include("[red]")
+      expect(ss.usage).to include("[red]")
 		end
 
-		it "should show default label for option" do 
+		it "should show default label for option" do
 			ss = CLI.new do
 				option :group, :default_label => 'blue'
 			end
-			ss.usage.should include("[blue]")
+      expect(ss.usage).to include("[blue]")
 		end
 
-		it "should show default label rather than default value if available for option" do 
+		it "should show default label rather than default value if available for option" do
 			ss = CLI.new do
 				option :group, :default_label => 'blue', :default => 'red'
 			end
-			ss.usage.should include("[blue]")
-			ss.usage.should_not include("[red]")
+      expect(ss.usage).to include("[blue]")
+      expect(ss.usage).not_to include("[red]")
 		end
 
-		it "should show default value for argument" do 
+		it "should show default value for argument" do
 			ss = CLI.new do
 				argument :group, :default => 'red'
 			end
-			ss.usage.should include("[red]")
+      expect(ss.usage).to include("[red]")
 		end
 
-		it "should show default label for argument" do 
+		it "should show default label for argument" do
 			ss = CLI.new do
 				argument :group, :default_label => 'blue'
 			end
-			ss.usage.should include("[blue]")
+      expect(ss.usage).to include("[blue]")
 		end
 
-		it "should show default label rather than default value if available for argument" do 
+		it "should show default label rather than default value if available for argument" do
 			ss = CLI.new do
 				argument :group, :default_label => 'blue', :default => 'red'
 			end
-			ss.usage.should include("[blue]")
-			ss.usage.should_not include("[red]")
+      expect(ss.usage).to include("[blue]")
+      expect(ss.usage).not_to include("[red]")
 		end
 
 		describe "usage line" do
@@ -235,7 +235,7 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.lines.first.should == "Usage: rspec [switches] [--] location\n"
+        expect(ss.usage.lines.first).to eq "Usage: rspec [switches] [--] location\n"
 			end
 
 			it "should suggest that switches can be used in usage line" do
@@ -243,7 +243,7 @@ describe CLI do
 					switch :location, :short => :l
 				end
 
-				ss.usage.lines.first.should == "Usage: rspec [switches]\n"
+        expect(ss.usage.lines.first).to eq "Usage: rspec [switches]\n"
 			end
 
 			it "should suggest that options can be used in usage line" do
@@ -252,7 +252,7 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.lines.first.should == "Usage: rspec [switches|options]\n"
+        expect(ss.usage.lines.first).to eq "Usage: rspec [switches|options]\n"
 			end
 
 			it "should suggest that switches or options can be used in usage line" do
@@ -261,7 +261,7 @@ describe CLI do
 					option :size, :short => :s
 				end
 
-				ss.usage.lines.first.should == "Usage: rspec [switches|options]\n"
+        expect(ss.usage.lines.first).to eq "Usage: rspec [switches|options]\n"
 			end
 
 			it "should suggest that option is mandatory" do
@@ -271,7 +271,7 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.lines.first.should == "Usage: rspec [switches] --size <value> --group <value>\n"
+        expect(ss.usage.lines.first).to eq "Usage: rspec [switches] --size <value> --group <value>\n"
 
 				ss = CLI.new do
 					option :location, :short => :l
@@ -280,14 +280,14 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.lines.first.should == "Usage: rspec [switches|options] --size <value> --group <value>\n"
+        expect(ss.usage.lines.first).to eq "Usage: rspec [switches|options] --size <value> --group <value>\n"
 
 				ss = CLI.new do
 					switch :location, :short => :l
 					option :size, :short => :s, :required => true
 				end
 
-				ss.usage.lines.first.should == "Usage: rspec [switches] --size <value>\n"
+        expect(ss.usage.lines.first).to eq "Usage: rspec [switches] --size <value>\n"
 			end
 
 			it "should suggest that argument is optional" do
@@ -299,7 +299,7 @@ describe CLI do
 				end
 
 				# switches will always be there due to implicit --help switch
-				ss.usage.lines.first.should == "Usage: rspec [switches] [--] location [size] [colour] group\n"
+        expect(ss.usage.lines.first).to eq "Usage: rspec [switches] [--] location [size] [colour] group\n"
 			end
 		end
 
@@ -310,29 +310,29 @@ describe CLI do
 				argument :log, :cast => Pathname
 			end
 
-			ss.usage.should include("Log file processor")
+      expect(ss.usage).to include("Log file processor")
 		end
 
 		it "should provide stdin usage information" do
-			CLI.new do
+			expect(CLI.new do
 				stdin
-			end.usage.should include(" < data")
+      end.usage).to include(" < data")
 
-			CLI.new do
+			expect(CLI.new do
 				stdin :log_file
-			end.usage.should include(" < log-file")
+      end.usage).to include(" < log-file")
 
 			u = CLI.new do
 				stdin :log_file, :description => 'log file to process'
 			end.usage
-			u.should include(" < log-file")
-			u.should include("log file to process")
+      expect(u).to include(" < log-file")
+      expect(u).to include("log file to process")
 
 			u = CLI.new do
 				stdin :log_data, :cast => YAML, :description => 'log data to process'
 			end.usage
-			u.should include(" < log-data")
-			u.should include("log data to process")
+      expect(u).to include(" < log-data")
+      expect(u).to include("log data to process")
 		end
 
 		it "should provide formated usage" do
@@ -360,7 +360,7 @@ describe CLI do
 				arguments :files, :cast => Pathname, :default => ['test', '1', '2'], :description => "files to process"
 			end.usage
 
-			u.should == <<EOS
+      expect(u).to eq <<EOS
 Usage: rspec [switches|options] --power-up <value> [--] log [magick] string [limit] [unlock-code] [code] illegal-prime [files*] < log-data
 Log file processor
 Input:
@@ -391,4 +391,3 @@ EOS
 		end
 	end
 end
-

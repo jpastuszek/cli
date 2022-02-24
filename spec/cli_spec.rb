@@ -16,20 +16,20 @@ describe CLI do
 			argument :code, :cast => Integer, :default => '123'
 		end.parse(['-l', 'singapore', '--power-up', 'yes', '-s', '24', '--debug', '--size', 'XXXL', '/tmp', 'hello'])
 
-		ps.group.should == 'red'
-		ps.power_up.should == 'yes'
-		ps.speed.should == 24
-		ps.size.should == 'XXXL'
+    expect(ps.group).to eq 'red'
+    expect(ps.power_up).to eq 'yes'
+    expect(ps.speed).to eq 24
+    expect(ps.size).to eq 'XXXL'
 
-		ps.log.to_s.should == '/tmp'
-		ps.magick.should == 'word'
-		ps.test.should == 'hello'
-		ps.code.should == 123
-		ps.debug.should be_true
+    expect(ps.log.to_s).to eq '/tmp'
+    expect(ps.magick).to eq 'word'
+    expect(ps.test).to eq 'hello'
+    expect(ps.code).to eq 123
+    expect(ps.debug).to be true
 	end
 
 	it "provides name method that provides current program name" do
-		CLI.name.should == 'rspec'
+    expect(CLI.name).to eq 'rspec'
 	end
 
 	describe "parse!" do
@@ -40,9 +40,9 @@ describe CLI do
 				argument :code
 			end.parse!(['-l', 'singapore', '--debug', 'hello'])
 
-			ps.location.should == 'singapore'
-			ps.debug.should be_true
-			ps.code.should == 'hello'
+      expect(ps.location).to eq 'singapore'
+      expect(ps.debug).to be true
+      expect(ps.code).to eq 'hello'
 		end
 
 		it "should return value structure where all values are set" do
@@ -51,15 +51,15 @@ describe CLI do
 				switch :debug
 			end.parse!([]).marshal_dump
 
-			h.member?(:location).should be_true
-			h[:location].should be_nil
+      expect(h.member?(:location)).to be true
+      expect(h[:location]).to be_nil
 
-			h.member?(:debug).should be_true
-			h[:debug].should be_nil
+      expect(h.member?(:debug)).to be true
+      expect(h[:debug]).to be_nil
 		end
 
 		it "should take a block that can be used to verify passed values" do
-			lambda {
+			expect {
 				ps = CLI.new do
 					option :location, :short => :l
 					switch :debug
@@ -68,10 +68,10 @@ describe CLI do
 				end.parse!(['-l', 'singapore', '--debug', 'hello']) do |values|
 					fail '--debug can not be used with --verbose' if values.debug and values.verbose
 				end
-			}.should_not raise_error
+			}.not_to raise_error
 
 			out = stderr_read do
-				lambda {
+				expect {
 					ps = CLI.new do
 						option :location, :short => :l
 						switch :debug
@@ -80,23 +80,22 @@ describe CLI do
 					end.parse!(['-l', 'singapore', '--debug', '--verbose', 'hello']) do |values|
 						fail '--debug can not be used with --verbose' if values.debug and values.verbose
 					end
-					}.should raise_error SystemExit
+					}.to raise_error SystemExit
 				end
-				out.should include('Error: --debug can not be used with --verbose')
-				out.should include('Usage:')
+				expect(out).to include('Error: --debug can not be used with --verbose')
+				expect(out).to include('Usage:')
 		end
 
 		it "should exit displaying usage and error message on standard error on usage error" do
 				out = stderr_read do
-					lambda {
+					expect {
 						ps = CLI.new do
 							option :weight, :required => true
 						end.parse!([])
-					}.should raise_error SystemExit
+					}.to raise_error SystemExit
 				end
-				out.should include('Error: mandatory options not specified: --weight')
-				out.should include('Usage:')
+        expect(out).to include('Error: mandatory options not specified: --weight')
+        expect(out).to include('Usage:')
 		end
 	end
 end
-

@@ -5,8 +5,8 @@ describe CLI do
 	describe 'STDIN handling' do
 		before :all do
 			@yaml = <<EOF
---- 
-:parser: 
+---
+:parser:
   :successes: 41
   :failures: 0
 EOF
@@ -14,14 +14,14 @@ EOF
 
 		it "should be nil if not specified" do
 			ps = CLI.new.parse
-			ps.stdin.should be_nil
+      expect(ps.stdin).to be_nil
 		end
 
 		it "should return IO if stdin is defined" do
 			ps = CLI.new do
 				stdin
 			end.parse
-			ps.stdin.should be_a IO
+      expect(ps.stdin).to be_a IO
 		end
 
 		it "should support casting to module responding to load" do
@@ -34,7 +34,7 @@ EOF
 				ps = ss.parse
 			end
 
-			ps.stdin.should == {:parser=>{:successes=>41, :failures=>0}}
+      expect(ps.stdin).to eq({:parser=>{:successes=>41, :failures=>0}})
 		end
 
 		it "should support casting with lambda" do
@@ -47,7 +47,7 @@ EOF
 				ps = ss.parse
 			end
 
-			ps.stdin.should == 'HELLO WORLD'
+      expect(ps.stdin).to eq 'HELLO WORLD'
 		end
 
 		it "should support casting with custom class" do
@@ -67,9 +67,8 @@ EOF
 				ps = ss.parse
 			end
 
-			ps.stdin.should be_a Upcaser
-			ps.stdin.value.should == 'HELLO WORLD'
+      expect(ps.stdin).to be_a Upcaser
+      expect(ps.stdin.value).to eq 'HELLO WORLD'
 		end
 	end
 end
-

@@ -11,12 +11,12 @@ describe CLI do
 				argument :test
 			end.parse(['-l', 'singapore', '--debug', '--', '--verbose'])
 
-			ps.help.should be_nil
-			ps.location.should == 'singapore'
-			ps.group.should == 'red'
-			ps.debug.should be_true
-			ps.test.should == '--verbose'
-			ps.verbose.should be_nil
+      expect(ps.help).to be_nil
+      expect(ps.location).to eq 'singapore'
+      expect(ps.group).to eq 'red'
+      expect(ps.debug).to be true
+      expect(ps.test).to eq '--verbose'
+      expect(ps.verbose).to be_nil
 
 			ps = CLI.new do
 				option :location, :short => :l
@@ -26,11 +26,11 @@ describe CLI do
 				argument :test
 			end.parse(['-l', 'singapore', '--debug', '--help'])
 
-			ps.location.should be_nil
-			ps.group.should be_nil
-			ps.debug.should be_nil
-			ps.verbose.should be_nil
-			ps.help.should_not be_nil
+      expect(ps.location).to be_nil
+      expect(ps.group).to be_nil
+      expect(ps.debug).to be_nil
+      expect(ps.verbose).to be_nil
+      expect(ps.help).not_to be_nil
 
 			ps = CLI.new do
 				option :location, :short => :l
@@ -43,15 +43,14 @@ describe CLI do
 				argument :test3
 			end.parse(['-l', 'singapore', '--debug', '--', '--help', '--version', '-m'])
 
-			ps.help.should be_nil
-			ps.location.should == 'singapore'
-			ps.group.should == 'red'
-			ps.debug.should be_true
-			ps.test.should == '--help'
-			ps.test2.should == '--version'
-			ps.test3.should == '-m'
-			ps.verbose.should be_nil
+      expect(ps.help).to be_nil
+      expect(ps.location).to eq 'singapore'
+      expect(ps.group).to eq 'red'
+      expect(ps.debug).to be true
+      expect(ps.test).to eq '--help'
+      expect(ps.test2).to eq '--version'
+      expect(ps.test3).to eq '-m'
+      expect(ps.verbose).to be_nil
 		end
 	end
 end
-
